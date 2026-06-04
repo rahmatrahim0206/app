@@ -83,7 +83,7 @@ function importBackupData(e) {
   } 
 }
 
-// Tombol Prosedur Reset Darurat (Menghapus Data Sensitif dari Browser Instan)
+// Tombol Prosedur Reset Darurat
 function triggerEmergencyReset() {
   showCustomConfirm(
     "Lakukan Atur Ulang Darurat?", 
