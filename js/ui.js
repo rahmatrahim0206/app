@@ -160,46 +160,29 @@ function clearSearchInput() {
 
 // --- SISTEM PANEL TAB ASISTEN (KANAN) ---
 function switchAsistenTab(t) {
-  ['agenda', 'kalender', 'alat'].forEach(id => {
+  // Tab asisten sekarang menggunakan 'agenda', 'memo', dan 'alat'
+  ['agenda', 'memo', 'alat'].forEach(id => {
     const btn = document.getElementById(`btn-tab-${id}`);
     const panel = document.getElementById(`panel-tab-${id}`);
     
     if (btn) {
       if (id === t) {
-        btn.className = "flex-1 py-2 px-2 rounded-xl text-[11px] font-extrabold bg-white dark:bg-slate-800 text-blue-600 shadow-sm";
+        btn.className = "flex-1 py-2 px-1 rounded-xl text-[11px] font-extrabold bg-white dark:bg-slate-800 text-blue-600 shadow-sm";
       } else {
-        btn.className = "flex-1 py-2 px-2 rounded-xl text-[11px] font-bold text-slate-500 hover:text-slate-800 dark:hover:text-slate-200";
+        btn.className = "flex-1 py-2 px-1 rounded-xl text-[11px] font-bold text-slate-500 hover:text-slate-800 dark:hover:text-slate-200 transition-all";
       }
     }
     if (panel) {
       panel.classList.toggle('hidden', id !== t);
     }
   });
-  
-  if (t === 'kalender') {
-    initCalendar();
-  }
 }
 
+// Buku saku sekarang adalah tab utama, fungsi sub-tab dilewati untuk fleksibilitas modular
 function switchSubTab(t) {
-  ['tugas', 'memo'].forEach(id => {
-    const btn = document.getElementById(`btn-sub-${id}`);
-    const panel = document.getElementById(`sub-panel-${id}`);
-    
-    if (btn) {
-      if (id === t) {
-        btn.className = "flex-1 py-1.5 text-[10px] font-black bg-white dark:bg-slate-800 text-blue-600 shadow-xs rounded-lg";
-      } else {
-        btn.className = "flex-1 py-1.5 text-[10px] font-bold text-slate-500";
-      }
-    }
-    if (panel) {
-      panel.classList.toggle('hidden', id !== t);
-    }
-  });
+  // Dipelihara untuk kompatibilitas internal jika diperlukan
 }
 
-// Pembuka/Penutup Modul Modal Dialog
 function openAddAgendaModal() {
   const m = document.getElementById('add-agenda-modal');
   if (m) {
@@ -249,8 +232,6 @@ function closeAddLinkModal() {
 }
 
 // --- TAB ASISTEN: AGENDA KERJA ---
-function saveAgenda() { secureSave(CONFIG.STORAGE_PREFIX + 'agendas', agendaData); }
-
 function renderAgenda() {
   const c = document.getElementById('agenda-list-container');
   if (!c) return;
@@ -311,7 +292,7 @@ function updateCountdownTask() {
   if(btn && p) btn.onclick = () => toggleTaskDone(p.id);
 }
 
-// --- TAB ASISTEN: KALENDER KERJA ---
+// --- TAB ASISTEN: KALENDER KERJA (TERKONEKSI DENGAN BUKU SAKU MEMO) ---
 function initCalendar() {
   const names = ["Januari","Februari","Maret","April","Mei","Juni","Juli","Agustus","September","Oktober","November","Desember"];
   const y = currentDateObj.getFullYear();
@@ -321,13 +302,57 @@ function initCalendar() {
   const c = document.getElementById('calendar-days-grid');
   if (!c) return;
   c.innerHTML = '';
+  
   const fd = new Date(y, m, 1).getDay();
   const td = new Date(y, m+1, 0).getDate();
+  
   for(let i=0; i<fd; i++) c.innerHTML += `<div></div>`;
   const today = new Date();
+  
   for(let d=1; d<=td; d++) {
     const isT = today.getDate()===d && today.getMonth()===m && today.getFullYear()===y;
-    c.innerHTML += `<div onclick="document.getElementById('calendar-event-display').innerHTML='<p class=\\'text-[10px] font-bold text-blue-600 dark:text-blue-400\\'><i class=\\'fa-solid fa-circle-info\\'></i> Hari Penting: ${d} ${names[m]} ${y}</p>'" class="p-1 rounded cursor-pointer ${isT ? 'bg-blue-600 text-white font-bold':'hover:bg-blue-50 dark:hover:bg-slate-700'}">${d}</div>`;
+    
+    // Periksa apakah ada catatan memo penting pada tanggal ini
+    const formattedTarget = `${y}-${String(m+1).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
+    const hasNote = notesData.some(n => n.date === formattedTarget);
+    
+    const dayElement = document.createElement('div');
+    dayElement.className = `p-1 rounded cursor-pointer relative flex flex-col items-center justify-center min-h-[32px] ${isT ? 'bg-blue-600 text-white font-bold':'hover:bg-blue-50 dark:hover:bg-slate-700'}`;
+    dayElement.textContent = d;
+    
+    // Berikan titik penanda jika ada memo penting
+    if (hasNote) {
+      const dot = document.createElement('span');
+      dot.className = `absolute bottom-1 w-1 h-1 rounded-full ${isT ? 'bg-white' : 'bg-rose-500 animate-pulse'}`;
+      dayElement.appendChild(dot);
+    }
+    
+    dayElement.onclick = () => showCalendarEventsForDate(d, m, y);
+    c.appendChild(dayElement);
+  }
+}
+
+function showCalendarEventsForDate(day, month, year) {
+  const names = ["Januari","Februari","Maret","April","Mei","Juni","Juli","Agustus","September","Oktober","November","Desember"];
+  const formattedTarget = `${year}-${String(month+1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+  const matchedNotes = notesData.filter(n => n.date === formattedTarget);
+  const displayArea = document.getElementById('calendar-event-display');
+  
+  if (!displayArea) return;
+  
+  if (matchedNotes.length > 0) {
+    let html = `<div class="space-y-1.5"><p class="text-[10px] font-black text-blue-600 dark:text-blue-400 flex items-center gap-1"><i class="fa-solid fa-calendar-day"></i> Jadwal ${day} ${names[month]} ${year}:</p>`;
+    matchedNotes.forEach(n => {
+      html += `
+        <div class="p-2 rounded-lg bg-blue-50/50 dark:bg-slate-900/50 border border-blue-100/50 dark:border-slate-800 text-left">
+          <h5 class="text-[10px] font-bold text-slate-800 dark:text-slate-100">${n.title}</h5>
+          <p class="text-[9px] text-slate-500 dark:text-slate-400 mt-0.5">${n.body}</p>
+        </div>`;
+    });
+    html += `</div>`;
+    displayArea.innerHTML = html;
+  } else {
+    displayArea.innerHTML = `<p class="text-[10px] text-slate-400 italic"><i class="fa-solid fa-circle-info text-blue-400"></i> Tidak ada memo penting pada ${day} ${names[month]} ${year}.</p>`;
   }
 }
 
@@ -339,29 +364,73 @@ function renderQuickNotes() {
   const c = document.getElementById('quick-notes-list');
   if(!c) return;
   c.innerHTML = '';
+  
+  if (notesData.length === 0) {
+    c.innerHTML = `<p class="text-[10px] text-slate-400 italic text-center py-4">Belum ada catatan memo sekolah.</p>`;
+    return;
+  }
+
   notesData.forEach(n => {
-    c.innerHTML += `
-      <div class="p-2 border rounded-xl bg-slate-50/50 dark:bg-slate-900/30 relative group font-sans">
-        <h5 class="text-[10px] font-bold text-slate-800 dark:text-white">${n.title}</h5>
-        <p class="text-[9px] text-slate-500 leading-relaxed line-clamp-2">${n.body}</p>
-        <button onclick="notesData=notesData.filter(x=>x.id!=='${n.id}'); secureSave(CONFIG.STORAGE_PREFIX + 'notes', notesData); renderQuickNotes();" class="absolute top-2 right-2 opacity-0 group-hover:opacity-100 text-rose-500 transition">
-          <i class="fa-solid fa-trash text-[9px]"></i>
-        </button>
-      </div>`;
+    const item = document.createElement('div');
+    item.className = 'p-3 border rounded-xl bg-slate-50/50 dark:bg-slate-900/30 relative group font-sans border-slate-100 dark:border-slate-800 hover:shadow-xs transition-all';
+    
+    const titleEl = document.createElement('h5');
+    titleEl.className = 'text-[10px] font-bold text-slate-800 dark:text-white flex items-center gap-1.5';
+    titleEl.innerHTML = `<i class="fa-solid fa-bookmark text-blue-500 text-[8px]"></i> ${n.title}`;
+
+    const dateBadge = document.createElement('span');
+    dateBadge.className = 'block text-[8px] font-mono text-slate-400 dark:text-slate-500 mt-1';
+    dateBadge.textContent = n.date ? `📅 Pelaksanaan: ${formatIndoDate(n.date)}` : '📅 Tiada tanggal';
+
+    const bodyEl = document.createElement('p');
+    bodyEl.className = 'text-[9px] text-slate-500 leading-relaxed mt-1.5 break-words';
+    bodyEl.textContent = n.body;
+
+    const delBtn = document.createElement('button');
+    delBtn.className = 'absolute top-3 right-3 opacity-0 group-hover:opacity-100 text-rose-500 hover:text-rose-700 transition duration-150';
+    delBtn.innerHTML = '<i class="fa-solid fa-trash text-[9px]"></i>';
+    delBtn.onclick = () => {
+      notesData = notesData.filter(x => x.id !== n.id);
+      secureSave(CONFIG.STORAGE_PREFIX + 'notes', notesData);
+      renderQuickNotes();
+      initCalendar(); // Segarkan kalender untuk mencerminkan perubahan tanda titik
+    };
+
+    item.appendChild(titleEl);
+    if(n.date) item.appendChild(dateBadge);
+    item.appendChild(bodyEl);
+    item.appendChild(delBtn);
+    c.appendChild(item);
   });
+}
+
+function formatIndoDate(dateStr) {
+  try {
+    const parts = dateStr.split('-');
+    const months = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'];
+    return `${parts[2]} ${months[parseInt(parts[1])-1]} ${parts[0]}`;
+  } catch(e) {
+    return dateStr;
+  }
 }
 
 function addQuickNote() {
   const t = document.getElementById('note-title-input').value.trim();
+  const d = document.getElementById('note-date-input').value; // Ambil nilai tanggal pelaksana
   const b = document.getElementById('note-body-input').value.trim();
+  
   if(t && b) {
-    notesData.push({ id: 'n-'+Date.now(), title: t, body: b });
+    notesData.push({ id: 'n-'+Date.now(), title: t, date: d || "", body: b });
     secureSave(CONFIG.STORAGE_PREFIX + 'notes', notesData);
     renderQuickNotes();
+    initCalendar(); // Segarkan kalender kerja agar titik penanda termuat
     closeAddMemoModal();
     document.getElementById('note-title-input').value = '';
+    document.getElementById('note-date-input').value = '';
     document.getElementById('note-body-input').value = '';
     showToast("Memo catatan berhasil disimpan!");
+  } else {
+    showToast("Mohon lengkapi judul dan rincian memo!", "warning");
   }
 }
 
