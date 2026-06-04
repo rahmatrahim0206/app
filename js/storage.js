@@ -74,6 +74,7 @@ function importBackupData(e) {
         saveAuthenticatorKeys();
         
         renderAll();
+        initCalendar(); // Render ulang penanda kalender
         showToast("Seluruh data sistem berhasil dipulihkan!"); 
       } catch (ex) {
         showToast("Format berkas cadangan tidak dikenali atau rusak.", "error");
@@ -83,7 +84,7 @@ function importBackupData(e) {
   } 
 }
 
-// Tombol Prosedur Reset Darurat
+// Tombol Prosedur Reset Darurat (Menghapus Data Sensitif & Merender Ulang DOM secara Responsif)
 function triggerEmergencyReset() {
   showCustomConfirm(
     "Lakukan Atur Ulang Darurat?", 
@@ -93,6 +94,10 @@ function triggerEmergencyReset() {
       keysToRemove.forEach(key => {
         localStorage.removeItem(CONFIG.STORAGE_PREFIX + key);
       });
+      
+      // Update penunjuk waktu responsif secara instan
+      updateClock();
+      
       showToast("Prosedur darurat dijalankan. Memuat ulang sistem...", "error");
       setTimeout(() => {
         window.location.reload();
