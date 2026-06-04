@@ -71,6 +71,8 @@ function applyConfigToDOM() {
 
 // Inisialisasi Utama Saat Halaman Dimuat
 window.onload = () => {
+  // Pemicu jam dan tanggal responsif tanpa delay pemuatan pertama
+  updateClock();
   applyConfigToDOM();
   
   // Membaca Data Cadangan Terenkripsi Lokal
@@ -85,7 +87,6 @@ window.onload = () => {
         renderDynamicLinks();
       })
       .catch(() => {
-        // Fallback jika tidak menggunakan server lokal (CORS file:// protocol)
         linksData = [...defaultSeedLinks];
         saveLinks();
         renderDynamicLinks();
@@ -106,7 +107,6 @@ window.onload = () => {
   renderAll();
   initCalendar();
   populateWaSelect();
-  updateClock();
   startTotpEngine();
   startCutOffCountdown();
   registerMainServiceWorker();
