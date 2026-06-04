@@ -199,6 +199,7 @@ function switchSubTab(t) {
   });
 }
 
+// Pembuka/Penutup Modul Modal Dialog
 function openAddAgendaModal() {
   const m = document.getElementById('add-agenda-modal');
   if (m) {
@@ -248,6 +249,8 @@ function closeAddLinkModal() {
 }
 
 // --- TAB ASISTEN: AGENDA KERJA ---
+function saveAgenda() { secureSave(CONFIG.STORAGE_PREFIX + 'agendas', agendaData); }
+
 function renderAgenda() {
   const c = document.getElementById('agenda-list-container');
   if (!c) return;
@@ -337,30 +340,14 @@ function renderQuickNotes() {
   if(!c) return;
   c.innerHTML = '';
   notesData.forEach(n => {
-    const item = document.createElement('div');
-    item.className = 'p-2 border rounded-xl bg-slate-50/50 dark:bg-slate-900/30 relative group font-sans';
-    
-    const titleEl = document.createElement('h5');
-    titleEl.className = 'text-[10px] font-bold text-slate-800 dark:text-white';
-    titleEl.textContent = n.title;
-
-    const bodyEl = document.createElement('p');
-    bodyEl.className = 'text-[9px] text-slate-500 leading-relaxed line-clamp-2';
-    bodyEl.textContent = n.body;
-
-    const delBtn = document.createElement('button');
-    delBtn.className = 'absolute top-2 right-2 opacity-0 group-hover:opacity-100 text-rose-500 transition';
-    delBtn.innerHTML = '<i class="fa-solid fa-trash text-[9px]"></i>';
-    delBtn.onclick = () => {
-      notesData = notesData.filter(x => x.id !== n.id);
-      secureSave(CONFIG.STORAGE_PREFIX + 'notes', notesData);
-      renderQuickNotes();
-    };
-
-    item.appendChild(titleEl);
-    item.appendChild(bodyEl);
-    item.appendChild(delBtn);
-    c.appendChild(item);
+    c.innerHTML += `
+      <div class="p-2 border rounded-xl bg-slate-50/50 dark:bg-slate-900/30 relative group font-sans">
+        <h5 class="text-[10px] font-bold text-slate-800 dark:text-white">${n.title}</h5>
+        <p class="text-[9px] text-slate-500 leading-relaxed line-clamp-2">${n.body}</p>
+        <button onclick="notesData=notesData.filter(x=>x.id!=='${n.id}'); secureSave(CONFIG.STORAGE_PREFIX + 'notes', notesData); renderQuickNotes();" class="absolute top-2 right-2 opacity-0 group-hover:opacity-100 text-rose-500 transition">
+          <i class="fa-solid fa-trash text-[9px]"></i>
+        </button>
+      </div>`;
   });
 }
 
