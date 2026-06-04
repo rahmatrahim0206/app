@@ -1,25 +1,48 @@
+/* ==========================================================
+   SCROLLBAR AESTHETICS CONFIGURATION (GLOBAL)
+   ========================================================== */
+
 /* Pengaturan Scrollbar Kustom Peramban Web */
 ::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
+  width: 7px;
+  height: 7px;
 }
+
 ::-webkit-scrollbar-track {
   background: transparent;
 }
+
 ::-webkit-scrollbar-thumb {
   background: #cbd5e1;
-  border-radius: 8px;
+  border-radius: 9999px;
+  transition: background-color 0.2s ease;
 }
+
 .dark ::-webkit-scrollbar-thumb {
+  background: #334155;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}
+
+.dark ::-webkit-scrollbar-thumb:hover {
   background: #475569;
 }
+
+/* Sembunyikan scrollbar untuk kelas khusus */
 .no-scrollbar::-webkit-scrollbar {
   display: none;
 }
+
 .no-scrollbar {
-  -ms-overflow-style: none;
-  scrollbar-width: none;
+  -ms-overflow-style: none; /* IE dan Edge */
+  scrollbar-width: none; /* Firefox */
 }
+
+/* ==========================================================
+   INTERACTIVE COMPONENTS & SCROLLS
+   ========================================================== */
 
 /* Transisi Sub-tab Agenda & Buku Saku */
 .sub-tab-content {
@@ -34,16 +57,48 @@
   scrollbar-width: thin;
   scrollbar-color: #cbd5e1 transparent;
 }
+
 .custom-scroll::-webkit-scrollbar {
-  width: 4px;
+  width: 5px;
 }
+
 .custom-scroll::-webkit-scrollbar-track {
   background: transparent;
 }
+
 .custom-scroll::-webkit-scrollbar-thumb {
   background-color: #cbd5e1;
   border-radius: 20px;
 }
+
 .dark .custom-scroll::-webkit-scrollbar-thumb {
   background-color: #475569;
+}
+
+/* ==========================================================
+   GLOBAL PREMIUM TYPOGRAPHY & SMOOTHING CONFIGURATION
+   ========================================================== */
+
+/* Memastikan Font diterapkan secara default dengan anti-aliasing tinggi */
+body {
+  font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+/* Terapkan font Space Grotesk khusus untuk elemen judul/teknis bergaya futuristik */
+.font-space {
+  font-family: 'Space Grotesk', monospace;
+}
+
+/* Kustomisasi gaya seleksi teks agar senada dengan identitas visual DAPO-HUB */
+::selection {
+  background-color: rgba(37, 99, 235, 0.2); /* Transparansi warna biru utama */
+  color: #1e3a8a;
+}
+
+.dark ::selection {
+  background-color: rgba(56, 189, 248, 0.3); /* Transparansi warna biru langit pada dark mode */
+  color: #e0f2fe;
 }
