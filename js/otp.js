@@ -103,7 +103,7 @@ function parseProtobuf(bytes) {
   return fields;
 }
 
-// Konversi UInt8Array biner ke Base32 String kustom
+// Konversi biner ke Base32
 function uint8ArrayToBase32(arr) {
   const alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ234567";
   let bits = 0;
@@ -123,7 +123,7 @@ function uint8ArrayToBase32(arr) {
   return output;
 }
 
-// Mengubah String Base64 URL-Safe aman menjadi normal
+// Mengubah String Base64 URL-Safe
 function safeAtob(str) {
   let padded = str.replace(/-/g, '+').replace(/_/g, '/').replace(/\s/g, '');
   while (padded.length % 4 !== 0) {
@@ -265,7 +265,7 @@ function handleQrCodeResult(res) {
   }
 }
 
-// RENDERING INTEGRASI BOX TOKEN OTP AKTIF
+// --- RENDERING INTEGRASI BOX TOKEN OTP AKTIF ---
 function renderAuthenticatorKeys() {
   const container = document.getElementById('main-authenticator-list');
   if (!container) return;
@@ -317,7 +317,7 @@ function renderAuthenticatorKeys() {
             </button>
           </div>
         </div>
-        <div onclick="copyText('${currentOtp}', 'Token OTP ${k.label.replace(/'/g, "\\'")} disalin!')" class="bg-slate-50 dark:bg-slate-900 py-3 rounded-xl border border-slate-100 dark:border-slate-700 text-center cursor-pointer hover:border-blue-500 dark:hover:border-blue-500 active:scale-95 transition-all group" title="Klik untuk menyalin token">
+        <div onclick="copyText('${currentOtp}', 'Token OTP ${k.label} disalin!')" class="bg-slate-50 dark:bg-slate-900 py-3 rounded-xl border border-slate-100 dark:border-slate-700 text-center cursor-pointer hover:border-blue-500 dark:hover:border-blue-500 active:scale-95 transition-all group" title="Klik untuk menyalin token">
           <span class="font-space font-black text-2xl tracking-wider text-blue-600 dark:text-blue-400 group-hover:text-blue-700 dark:group-hover:text-blue-300 transition-colors">${formattedOtp}</span>
         </div>
       </div>
@@ -378,7 +378,7 @@ function delete2FaKey(id) {
   }, 'fa-trash-can');
 }
 
-// TOTP CLOCK ENGINE (INTERPOLASI PROGRESS BAR SISA DETIK)
+// --- TOTP CLOCK ENGINE ---
 function startTotpEngine() {
   if (totpIntervalId) clearInterval(totpIntervalId);
   
@@ -407,7 +407,7 @@ function startTotpEngine() {
   totpIntervalId = setInterval(updateTick, 1000);
 }
 
-// QR SCANNER KONTROL CAM
+// --- QR SCANNER KONTROL CAM ---
 function toggleQrScanner() {
   if (typeof Html5Qrcode === 'undefined') {
     showToast("Pustaka QR Scanner belum siap dimuat.", "error");
