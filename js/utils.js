@@ -1,107 +1,91 @@
 // ==========================================================
-// UTILITY FUNCTIONS, CLOCK, THEME, AND IDLE CONTROL
+// PORTAL UTILITIES, SECURITY SHIELD & CLIPBOARD ASSISTANT
 // ==========================================================
 
-// Fungsi Salin Teks ke Clipboard
-function copyText(textToCopy, successMessage) {
-  const dummy = document.createElement('textarea');
-  dummy.value = textToCopy;
-  document.body.appendChild(dummy);
-  dummy.select();
-  document.execCommand('copy');
-  document.body.removeChild(dummy);
-  showToast(successMessage || "Teks berhasil disalin!");
-}
+/**
+ * Menyalin teks ke papan klip secara aman menggunakan metode fallback textarea
+ * untuk menjamin fungsionalitas tetap berjalan dalam lingkungan iframe / sandboxed.
+ */
+function copyText(text, successMessage = "Teks berhasil disalin!") {
+  const tempTextArea = document.createElement("textarea");
+  tempTextArea.value = text;
+  tempTextArea.style.position = "fixed"; // Hindari scrolling halaman saat fokus
+  tempTextArea.style.opacity = "0";
+  document.body.appendChild(tempTextArea);
+  tempTextArea.select();
+  tempTextArea.setSelectionRange(0, 99999); // Untuk perangkat mobile
 
-// Fungsi Acak Kata Sandi Aman
-function generateSecurePassword() {
-  const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*()_+";
-  let pass = "";
-  for (let i = 0; i < 12; i++) {
-    pass += chars.charAt(Math.floor(Math.random() * chars.length));
+  try {
+    const success = document.execCommand("copy");
+    if (success) {
+      showToast(successMessage, "success");
+    } else {
+      showToast("Gagal menyalin teks.", "warning");
+    }
+  } catch (err) {
+    console.error("Kesalahan penyalinan teks: ", err);
+    showToast("Kesalahan sistem saat menyalin teks.", "error");
   }
-  const pwInput = document.getElementById('generated-password-input');
-  if (pwInput) pwInput.value = pass;
+
+  document.body.removeChild(tempTextArea);
 }
 
-function copyGeneratedPassword() {
-  const pwInput = document.getElementById('generated-password-input');
-  if (pwInput && pwInput.value) {
-    copyText(pwInput.value, "Kata sandi aman berhasil disalin!");
+/**
+ * MEMBLOKIR PINTASAN TOMBOL INSPEKSI (DEVELOPER TOOLS)
+ * Memperbolehkan klik kanan agar fungsi copy-paste bawaan browser tetap bekerja.
+ */
+document.addEventListener('keydown', function(e) {
+  // 1. Blokir Tombol F12 (Kode tombol: 123)
+  if (e.keyCode === 123) {
+    e.preventDefault();
+    showToast("🔒 Akses F12 dinonaktifkan demi keamanan data.", "warning");
+    return false;
   }
-}
 
-// Pembaruan Jam & Hari WITA Aktif
-function updateClock() {
-  const timeDisplay = document.getElementById('header-time');
-  const dateDisplay = document.getElementById('header-date');
-  if (!timeDisplay || !dateDisplay) return;
-  const now = new Date();
-  const utc = now.getTime() + (now.getTimezoneOffset() * 60000);
-  const witaDate = new Date(utc + (3600000 * 8)); 
-  const days = ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
-  const months = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
-  timeDisplay.textContent = `${String(witaDate.getHours()).padStart(2, '0')}:${String(witaDate.getMinutes()).padStart(2, '0')}:${String(witaDate.getSeconds()).padStart(2, '0')} WITA`;
-  dateDisplay.textContent = `${days[witaDate.getDay()]}, ${witaDate.getDate()} ${months[witaDate.getMonth()]} ${witaDate.getFullYear()}`;
-}
-
-// Pengatur Tema Gelap/Terang
-function toggleTheme() {
-  const isDark = document.documentElement.classList.toggle('dark');
-  localStorage.setItem('theme', isDark ? 'dark' : 'light');
-  const icon = document.getElementById('theme-icon');
-  if (icon) icon.className = isDark ? 'fa-solid fa-sun' : 'fa-solid fa-moon';
-  if (typeof initCalendar === 'function') initCalendar();
-}
-
-// Penunjuk Status Jaringan Online/Offline
-function updateOnlineStatus(isOnline) {
-  const bdg = document.getElementById('status-badge');
-  const icn = document.getElementById('status-badge-icon');
-  const txtBdg = document.getElementById('status-text-badge');
-  const plse = document.getElementById('status-pulse-dot');
-  const lbl = document.getElementById('status-label');
-  if (!bdg || !icn || !txtBdg || !plse || !lbl) return;
-  if (isOnline) {
-    bdg.className = "absolute -bottom-1 -right-1 block h-5 w-5 rounded-full ring-4 ring-white dark:ring-slate-800 bg-emerald-500 flex items-center justify-center text-[10px] text-white font-bold transition-colors duration-300";
-    icn.className = "fa-solid fa-cloud-arrow-up animate-pulse";
-    txtBdg.className = "inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-50 text-emerald-700 dark:bg-emerald-950/40 border border-emerald-200/50 transition-colors duration-300";
-    plse.className = "w-1.5 h-1.5 mr-1.5 rounded-full bg-emerald-500 animate-pulse";
-    lbl.textContent = "Online";
-  } else {
-    bdg.className = "absolute -bottom-1 -right-1 block h-5 w-5 rounded-full ring-4 ring-white dark:ring-slate-800 bg-amber-500 flex items-center justify-center text-[10px] text-white font-bold transition-colors duration-300";
-    icn.className = "fa-solid fa-hard-drive";
-    txtBdg.className = "inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-semibold bg-amber-50 text-amber-700 dark:bg-amber-950/40 border border-amber-200/50 transition-colors duration-300";
-    plse.className = "w-1.5 h-1.5 mr-1.5 rounded-full bg-amber-500";
-    lbl.textContent = "Luring (Lokal)";
+  // 2. Blokir kombinasi Ctrl+Shift+I atau Cmd+Option+I (Inspect)
+  if ((e.ctrlKey || e.metaKey) && e.shiftKey && (e.keyCode === 73 || e.key === 'I' || e.key === 'i')) {
+    e.preventDefault();
+    showToast("🔒 Pintasan Inspeksi Elemen dinonaktifkan.", "warning");
+    return false;
   }
-}
 
-// Detektor Kunci Layar Otomatis
-function resetIdleTimer() { 
-  if (!sessionLocked) idleTimeCounter = 0; 
-}
-
-function lockUserSession() {
-  sessionLocked = true;
-  const screen = document.getElementById('idle-lock-screen');
-  const card = document.getElementById('lock-card');
-  if (screen && card) {
-    screen.classList.replace('pointer-events-none', 'pointer-events-auto');
-    screen.classList.replace('opacity-0', 'opacity-100');
-    card.classList.replace('scale-95', 'scale-100');
+  // 3. Blokir kombinasi Ctrl+Shift+J atau Cmd+Option+J (Console)
+  if ((e.ctrlKey || e.metaKey) && e.shiftKey && (e.keyCode === 74 || e.key === 'J' || e.key === 'j')) {
+    e.preventDefault();
+    showToast("🔒 Akses Konsol Pengembang dibatasi.", "warning");
+    return false;
   }
-}
 
-function unlockSession() {
-  sessionLocked = false;
-  idleTimeCounter = 0;
-  const screen = document.getElementById('idle-lock-screen');
-  const card = document.getElementById('lock-card');
-  if (screen && card) {
-    screen.classList.replace('pointer-events-auto', 'pointer-events-none');
-    screen.classList.replace('opacity-100', 'opacity-0');
-    card.classList.replace('scale-100', 'scale-95');
-    showToast("Sesi kerja berhasil dipulihkan!", "success");
+  // 4. Blokir kombinasi Ctrl+Shift+C atau Cmd+Option+C (Selector Tool)
+  if ((e.ctrlKey || e.metaKey) && e.shiftKey && (e.keyCode === 67 || e.key === 'C' || e.key === 'c')) {
+    e.preventDefault();
+    showToast("🔒 Alat inspeksi visual dinonaktifkan.", "warning");
+    return false;
   }
-}
+
+  // 5. Blokir kombinasi Ctrl+U atau Cmd+Option+U (View Source)
+  if ((e.ctrlKey || e.metaKey) && (e.keyCode === 85 || e.key === 'U' || e.key === 'u')) {
+    e.preventDefault();
+    showToast("🔒 Akses kode sumber mentah dibatasi.", "warning");
+    return false;
+  }
+});
+
+/**
+ * INFINITE DEBUGGER LOOP
+ * Jika pengguna membuka DevTools via menu browser, script ini akan otomatis 
+ * memaksa browser untuk pause (beku) sehingga kode internal tidak bisa dimanipulasi.
+ */
+(function() {
+  const protectApp = function() {
+    try {
+      (function() {
+        // Memicu debugger internal peramban jika konsol terbuka
+        return false;
+      }['constructor']('debugger')());
+    } catch (err) {}
+  };
+  
+  // Jalankan debugger secara berkala setiap 200ms
+  setInterval(protectApp, 200);
+})();
