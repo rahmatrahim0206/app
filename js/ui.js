@@ -158,48 +158,29 @@ function clearSearchInput() {
   filterLinksOrKeys(); 
 }
 
-// --- SISTEM PANEL TAB ASISTEN (KANAN) ---
-function switchAsistenTab(t) {
-  ['agenda', 'kalender', 'alat'].forEach(id => {
-    const btn = document.getElementById(`btn-tab-${id}`);
-    const panel = document.getElementById(`panel-tab-${id}`);
-    
-    if (btn) {
-      if (id === t) {
-        btn.className = "flex-1 py-2 px-2 rounded-xl text-[11px] font-extrabold bg-white dark:bg-slate-800 text-blue-600 shadow-sm";
-      } else {
-        btn.className = "flex-1 py-2 px-2 rounded-xl text-[11px] font-bold text-slate-500 hover:text-slate-800 dark:hover:text-slate-200";
-      }
-    }
-    if (panel) {
-      panel.classList.toggle('hidden', id !== t);
-    }
-  });
-  
-  if (t === 'kalender') {
+// --- SISTEM PANEL TAB KOTAK 1 (KALENDER & BUKU SAKU MEMO) ---
+function switchCalendarMemoTab(t) {
+  const calendarBtn = document.getElementById('btn-tab-calendar');
+  const memoBtn = document.getElementById('btn-tab-memo');
+  const calendarPanel = document.getElementById('panel-tab-calendar');
+  const memoPanel = document.getElementById('panel-tab-memo');
+
+  if (t === 'calendar') {
+    if (calendarBtn) calendarBtn.className = "flex-1 py-2 px-1 rounded-xl text-[11px] font-extrabold bg-white dark:bg-slate-800 text-blue-600 shadow-sm";
+    if (memoBtn) memoBtn.className = "flex-1 py-2 px-1 rounded-xl text-[11px] font-bold text-slate-500 hover:text-slate-800 dark:hover:text-slate-200";
+    if (calendarPanel) calendarPanel.classList.remove('hidden');
+    if (memoPanel) memoPanel.classList.add('hidden');
     initCalendar();
+  } else if (t === 'memo') {
+    if (calendarBtn) calendarBtn.className = "flex-1 py-2 px-1 rounded-xl text-[11px] font-bold text-slate-500 hover:text-slate-800 dark:hover:text-slate-200";
+    if (memoBtn) memoBtn.className = "flex-1 py-2 px-1 rounded-xl text-[11px] font-extrabold bg-white dark:bg-slate-800 text-blue-600 shadow-sm";
+    if (calendarPanel) calendarPanel.classList.add('hidden');
+    if (memoPanel) memoPanel.classList.remove('hidden');
+    renderQuickNotes();
   }
 }
 
-function switchSubTab(t) {
-  ['tugas', 'memo'].forEach(id => {
-    const btn = document.getElementById(`btn-sub-${id}`);
-    const panel = document.getElementById(`sub-panel-${id}`);
-    
-    if (btn) {
-      if (id === t) {
-        btn.className = "flex-1 py-1.5 text-[10px] font-black bg-white dark:bg-slate-800 text-blue-600 shadow-xs rounded-lg";
-      } else {
-        btn.className = "flex-1 py-1.5 text-[10px] font-bold text-slate-500";
-      }
-    }
-    if (panel) {
-      panel.classList.toggle('hidden', id !== t);
-    }
-  });
-}
-
-// Pembuka/Penutup Modul Modal Dialog
+// Modul Modal Dialog
 function openAddAgendaModal() {
   const m = document.getElementById('add-agenda-modal');
   if (m) {
@@ -255,7 +236,6 @@ function renderAgenda() {
   const c = document.getElementById('agenda-list-container');
   if (!c) return;
   
-  // Menggunakan DocumentFragment untuk meningkatkan kinerja rendering DOM secara instan
   const fragment = document.createDocumentFragment();
   const f = document.getElementById('agenda-filter').value;
   const tasks = agendaData.filter(t => f === 'semua' ? true : (f === 'belum' ? !t.done : t.done)).sort((a,b)=>a.createdAt-b.createdAt);
@@ -316,7 +296,7 @@ function updateCountdownTask() {
   if(btn && p) btn.onclick = () => toggleTaskDone(p.id);
 }
 
-// --- TAB ASISTEN: KALENDER KERJA (Sangat Dioptimalkan dengan Buffer Render Sekaligus) ---
+// --- TAB ASISTEN: KALENDER KERJA ---
 function initCalendar() {
   const names = ["Januari","Februari","Maret","April","Mei","Juni","Juli","Agustus","September","Oktober","November","Desember"];
   const y = currentDateObj.getFullYear();
@@ -330,7 +310,6 @@ function initCalendar() {
   const td = new Date(y, m+1, 0).getDate();
   const today = new Date();
   
-  // Menggunakan pendekatan Buffer Array String untuk menghindari overhead penulisan innerHTML berulang
   let htmlBuffer = [];
   
   for(let i=0; i<fd; i++) {
@@ -339,9 +318,8 @@ function initCalendar() {
   
   for(let d=1; d<=td; d++) {
     const isT = today.getDate()===d && today.getMonth()===m && today.getFullYear()===y;
-    const itemClass = isT ? 'bg-blue-600 text-white font-bold' : 'hover:bg-blue-50 dark:hover:bg-slate-700';
+    const itemClass = isT ? 'bg-blue-600 text-white font-bold shadow-sm' : 'hover:bg-blue-50 dark:hover:bg-slate-700';
     
-    // Perencanaan click event yang aman
     htmlBuffer.push(`
       <div onclick="document.getElementById('calendar-event-display').innerHTML='<p class=\\'text-[10px] font-bold text-blue-600 dark:text-blue-400\\'><i class=\\'fa-solid fa-circle-info\\'></i> Hari Penting: ${d} ${names[m]} ${y}</p>'" 
            class="p-1 rounded cursor-pointer transition-colors duration-150 ${itemClass}">
@@ -350,7 +328,6 @@ function initCalendar() {
     `);
   }
   
-  // Penulisan ke DOM secara instan dalam 1 operasi tunggal (Loading Super Cepat)
   c.innerHTML = htmlBuffer.join('');
 }
 
@@ -366,15 +343,14 @@ function renderQuickNotes() {
   
   notesData.forEach(n => {
     const itemDiv = document.createElement('div');
-    itemDiv.className = 'p-2 border rounded-xl bg-slate-50/50 dark:bg-slate-900/30 relative group font-sans';
+    itemDiv.className = 'p-2 border border-slate-150 dark:border-slate-700/60 rounded-xl bg-slate-50/50 dark:bg-slate-900/30 relative group font-sans';
     
-    // Pengamanan XSS konten dinamis menggunakan textContent
     const h5 = document.createElement('h5');
     h5.className = 'text-[10px] font-bold text-slate-800 dark:text-white';
     h5.textContent = n.title;
     
     const p = document.createElement('p');
-    p.className = 'text-[9px] text-slate-500 leading-relaxed line-clamp-2';
+    p.className = 'text-[9px] text-slate-500 leading-relaxed line-clamp-2 mt-0.5';
     p.textContent = n.body;
     
     const btn = document.createElement('button');
@@ -573,7 +549,7 @@ function registerMainServiceWorker() {
   }
 }
 
-// Real-time Countdown Cut-off BOS (Sangat Optimal tanpa Overhead CPU)
+// Real-time Countdown Cut-off BOS
 function startCutOffCountdown() {
   const targetDate = new Date(CONFIG.CUTOFF_DATE).getTime();
   const daysEl = document.getElementById("countdown-days");
@@ -606,12 +582,34 @@ function startCutOffCountdown() {
     secondsEl.textContent = s < 10 ? '0' + s : s;
   }
   
-  // Eksekusi pertama kali secara instan (Menghapus kedipan loading "--")
   updateCountdown();
   setInterval(updateCountdown, 1000);
 }
 
-// Berkas Sumber Manifest & Service Worker untuk Unduhan Paket Luring
 const manifestJsonText = `{\n  "name": "DAPO-HUB SPENTIG",\n  "short_name": "DAPO-HUB",\n  "description": "Portal Integrasi Operator Dapodik & IT SMP Negeri 3 Makassar",\n  "start_url": "index.html",\n  "display": "standalone",\n  "background_color": "#f8fafc",\n  "theme_color": "#2563eb",\n  "icons": [\n    {\n      "src": "https://cdn-icons-png.flaticon.com/512/2210/2210143.png",\n      "sizes": "512x512",\n      "type": "image/png"\n    }\n  ]\n}`;
 
-const serviceWorkerJsText = `\n  const CACHE_NAME = 'dapohub-cache-v3';\n  const ASSETS_TO_CACHE = ['./', './index.html', './manifest.json'];\n  self.addEventListener('install', (e) => e.waitUntil(caches.open(CACHE_NAME).then((c) => c.addAll(ASSETS_TO_CACHE))));\n  self.addEventListener('activate', (e) => e.waitUntil(caches.keys().then((keys) => Promise.all(keys.filter(k => k !== CACHE_NAME).map(k => caches.delete(k))))));\n  self.addEventListener('fetch', (e) => {\n    if (!e.request.url.startsWith('http')) return;\n    e.respondWith(caches.match(e.request).then((r) => r || fetch(e.request).catch(() => caches.match('./index.html'))));\n  });\n`;
+const serviceWorkerJsText = `
+  const CACHE_NAME = 'dapohub-cache-v3';
+  const ASSETS_TO_CACHE = [
+    './',
+    './index.html',
+    './manifest.json',
+    './css/style.css',
+    './js/utils.js',
+    './js/storage.js',
+    './js/otp.js',
+    './js/links.js',
+    './js/ui.js',
+    './js/app.js',
+    'https://cdn.tailwindcss.com',
+    'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css',
+    'https://cdnjs.cloudflare.com/ajax/libs/html5-qrcode/2.3.8/html5-qrcode.min.js',
+    'https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.2.0/crypto-js.min.js'
+  ];
+  self.addEventListener('install', (e) => e.waitUntil(caches.open(CACHE_NAME).then((c) => c.addAll(ASSETS_TO_CACHE))));
+  self.addEventListener('activate', (e) => e.waitUntil(caches.keys().then((keys) => Promise.all(keys.filter(k => k !== CACHE_NAME).map(k => caches.delete(k))))));
+  self.addEventListener('fetch', (e) => {
+    if (!e.request.url.startsWith('http')) return;
+    e.respondWith(caches.match(e.request).then((r) => r || fetch(e.request).catch(() => caches.match('./index.html'))));
+  });
+`;
