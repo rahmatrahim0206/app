@@ -7,25 +7,20 @@
   width: 7px;
   height: 7px;
 }
-
 ::-webkit-scrollbar-track {
   background: transparent;
 }
-
 ::-webkit-scrollbar-thumb {
   background: #cbd5e1;
   border-radius: 9999px;
   transition: background-color 0.2s ease;
 }
-
 .dark ::-webkit-scrollbar-thumb {
   background: #334155;
 }
-
 ::-webkit-scrollbar-thumb:hover {
   background: #94a3b8;
 }
-
 .dark ::-webkit-scrollbar-thumb:hover {
   background: #475569;
 }
@@ -34,15 +29,10 @@
 .no-scrollbar::-webkit-scrollbar {
   display: none;
 }
-
 .no-scrollbar {
   -ms-overflow-style: none; /* IE dan Edge */
   scrollbar-width: none; /* Firefox */
 }
-
-/* ==========================================================
-   INTERACTIVE COMPONENTS & SCROLLS
-   ========================================================== */
 
 /* Transisi Sub-tab Agenda & Buku Saku */
 .sub-tab-content {
@@ -57,60 +47,39 @@
   scrollbar-width: thin;
   scrollbar-color: #cbd5e1 transparent;
 }
-
 .custom-scroll::-webkit-scrollbar {
   width: 5px;
 }
-
 .custom-scroll::-webkit-scrollbar-track {
   background: transparent;
 }
-
 .custom-scroll::-webkit-scrollbar-thumb {
   background-color: #cbd5e1;
   border-radius: 20px;
 }
-
 .dark .custom-scroll::-webkit-scrollbar-thumb {
   background-color: #475569;
 }
 
-/* ==========================================================
-   LAYOUT FIXED FOR STICKY SIDEBARS
-   ========================================================== */
-
-/* Memaksa elemen sidebar samping dengan kelas sticky di dalam layout Grid/Flex 
-   agar tidak meregang (stretch) secara vertikal, sehingga efek meluncur (sticky) 
-   dapat aktif sempurna saat halaman digulir.
-*/
+/* Memaksa elemen sidebar samping tetap sticky saat digulir */
 aside.lg\:sticky {
   align-self: start !important;
 }
 
-/* ==========================================================
-   GLOBAL PREMIUM TYPOGRAPHY & SMOOTHING CONFIGURATION
-   ========================================================== */
-
-/* Memastikan Font diterapkan secara default dengan anti-aliasing tinggi */
 body {
   font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-rendering: optimizeLegibility;
 }
-
-/* Terapkan font Space Grotesk khusus untuk elemen judul/teknis bergaya futuristik */
 .font-space {
   font-family: 'Space Grotesk', monospace;
 }
-
-/* Kustomisasi gaya seleksi teks agar senada dengan identitas visual DAPO-HUB */
 ::selection {
-  background-color: rgba(37, 99, 235, 0.2); /* Transparansi warna biru utama */
+  background-color: rgba(37, 99, 235, 0.2);
   color: #1e3a8a;
 }
-
 .dark ::selection {
-  background-color: rgba(56, 189, 248, 0.3); /* Transparansi warna biru langit pada dark mode */
+  background-color: rgba(56, 189, 248, 0.3);
   color: #e0f2fe;
 }
