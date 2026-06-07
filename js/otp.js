@@ -265,7 +265,7 @@ function handleQrCodeResult(res) {
   }
 }
 
-// --- RENDERING INTEGRASI BOX TOKEN OTP AKTIF ---
+// Rendering Token OTP
 function renderAuthenticatorKeys() {
   const container = document.getElementById('main-authenticator-list');
   if (!container) return;
@@ -378,7 +378,7 @@ function delete2FaKey(id) {
   }, 'fa-trash-can');
 }
 
-// --- TOTP CLOCK ENGINE ---
+// TOTP clock ticking engine
 function startTotpEngine() {
   if (totpIntervalId) clearInterval(totpIntervalId);
   
@@ -407,7 +407,7 @@ function startTotpEngine() {
   totpIntervalId = setInterval(updateTick, 1000);
 }
 
-// --- QR SCANNER KONTROL CAM ---
+// QR Scanner Cam control
 function toggleQrScanner() {
   if (typeof Html5Qrcode === 'undefined') {
     showToast("Pustaka QR Scanner belum siap dimuat.", "error");
