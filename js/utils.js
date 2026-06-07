@@ -2,7 +2,7 @@
 // UTILITY FUNCTIONS, CLOCK, THEME, AND IDLE CONTROL
 // ==========================================================
 
-// Fungsi Salin Teks ke Clipboard (Tetap dipertahankan & diizinkan)
+// Fungsi Salin Teks ke Clipboard (Dengan penanganan fallback execCommand)
 function copyText(textToCopy, successMessage) {
   const dummy = document.createElement('textarea');
   dummy.value = textToCopy;
@@ -106,51 +106,35 @@ function unlockSession() {
   }
 }
 
-// ==========================================================
-// ANTI-INSPECT PROTECTION MODULE (Mencegah Inspeksi Elemen)
-// ==========================================================
-
-// 1. Mencegah Klik Kanan (Context Menu) di Seluruh Area Aplikasi
+// --- ANTI-INSPECT PROTECTION MODULE ---
 document.addEventListener('contextmenu', function(e) {
-  // Hanya blokir jika tidak sedang berinteraksi di elemen input teks atau textarea
   const activeEl = document.activeElement;
   if (activeEl && (activeEl.tagName === 'INPUT' || activeEl.tagName === 'TEXTAREA')) {
-    return; // Izinkan klik kanan bawaan peramban di dalam kotak input
+    return; 
   }
   e.preventDefault();
   showToast("⚠️ Klik kanan dinonaktifkan demi keamanan kredensial.", "warning");
 });
 
-// 2. Memblokir Tombol Shortcut Developer Tools (F12, Ctrl+Shift+I, Ctrl+Shift+J, Ctrl+U)
 document.addEventListener('keydown', function(e) {
-  // Blokir tombol F12
   if (e.keyCode === 123) {
     e.preventDefault();
     showToast("⚠️ Developer tools dinonaktifkan.", "error");
     return false;
   }
-  
-  // Blokir Ctrl+Shift+I (Inspect)
   if (e.ctrlKey && e.shiftKey && e.keyCode === 73) {
     e.preventDefault();
     showToast("⚠️ Inspeksi elemen dilarang.", "error");
     return false;
   }
-  
-  // Blokir Ctrl+Shift+J (Console)
   if (e.ctrlKey && e.shiftKey && e.keyCode === 74) {
     e.preventDefault();
     showToast("⚠️ Akses konsol dinonaktifkan.", "error");
     return false;
   }
-  
-  // Blokir Ctrl+U (View Source Code)
   if (e.ctrlKey && e.keyCode === 85) {
     e.preventDefault();
     showToast("⚠️ Akses kode sumber dinonaktifkan.", "error");
     return false;
   }
-
-  // Catatan: Fungsi Ctrl+C (Copy), Ctrl+V (Paste), Ctrl+X (Cut) dan Ctrl+A (Select All)
-  // tetap dibiarkan berjalan normal tanpa pencegahan apa pun di sini.
 });
