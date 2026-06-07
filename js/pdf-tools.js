@@ -37,10 +37,17 @@ function resetPdfWorkspaces() {
   const wordPrev = document.getElementById('pdf-word-preview-text');
   if (wordPrev) wordPrev.textContent = "Belum ada file yang dipilih...";
   
-  document.getElementById('pdf-split-pages').value = '';
-  document.getElementById('pdf-split-name').value = '';
-  document.getElementById('pdf-text-input-body').value = '';
-  document.getElementById('pdf-text-filename').value = '';
+  const splitPages = document.getElementById('pdf-split-pages');
+  if (splitPages) splitPages.value = '';
+  
+  const splitName = document.getElementById('pdf-split-name');
+  if (splitName) splitName.value = '';
+  
+  const textBody = document.getElementById('pdf-text-input-body');
+  if (textBody) textBody.value = '';
+  
+  const textFilename = document.getElementById('pdf-text-filename');
+  if (textFilename) textFilename.value = '';
 }
 
 // Beralih Tab Mini di dalam Menu PDF
@@ -65,12 +72,26 @@ function switchPdfSubTab(tabName) {
 // --- LOGIKA GABUNG PDF (MERGE) ---
 function handleMergeFilesSelect(e) {
   const files = Array.from(e.target.files);
+  let ignoredCount = 0;
+  
   files.forEach(file => {
-    if (file.type === "application/pdf") {
+    // PERBAIKAN: Validasi ganda tipe MIME atau ekstensi nama berkas .pdf
+    const isPdf = file.type === "application/pdf" || file.name.toLowerCase().endsWith('.pdf');
+    if (isPdf) {
       selectedMergeFiles.push(file);
+    } else {
+      ignoredCount++;
     }
   });
+  
+  if (ignoredCount > 0) {
+    showToast(`⚠️ ${ignoredCount} file diabaikan karena bukan format PDF.`, "warning");
+  } else if (files.length > 0) {
+    showToast(`✅ Berhasil menambahkan ${files.length - ignoredCount} file PDF.`, "success");
+  }
+  
   renderMergeFilesList();
+  e.target.value = ""; // Reset input file agar bisa memilih file yang sama jika diinginkan
 }
 
 function renderMergeFilesList() {
@@ -80,10 +101,10 @@ function renderMergeFilesList() {
   
   selectedMergeFiles.forEach((file, index) => {
     const item = document.createElement('div');
-    item.className = "flex justify-between items-center p-2.5 bg-slate-50 dark:bg-slate-900 rounded-xl border border-slate-100 dark:border-slate-800 text-xs";
+    item.className = "flex justify-between items-center p-2.5 bg-slate-50 dark:bg-slate-900 rounded-xl border border-slate-100 dark:border-slate-800 text-xs animate-fade-in";
     item.innerHTML = `
       <span class="truncate font-medium flex-1 pr-4"><i class="fa-solid fa-file-pdf text-rose-500 mr-1.5"></i>${index + 1}. ${file.name}</span>
-      <button onclick="removeMergeFile(${index})" class="text-rose-500 hover:text-rose-700 transition p-1"><i class="fa-solid fa-circle-minus"></i></button>
+      <button onclick="removeMergeFile(${index})" class="text-rose-500 hover:text-rose-700 transition p-1" title="Hapus dari antrean"><i class="fa-solid fa-circle-minus"></i></button>
     `;
     container.appendChild(item);
   });
@@ -125,10 +146,18 @@ async function processPdfMerge() {
 // --- LOGIKA PISAH PDF (SPLIT) ---
 function handleSplitFileSelect(e) {
   const file = e.target.files[0];
-  if (file && file.type === "application/pdf") {
+  if (!file) return;
+
+  // PERBAIKAN: Validasi tipe MIME atau ekstensi .pdf
+  const isPdf = file.type === "application/pdf" || file.name.toLowerCase().endsWith('.pdf');
+  if (isPdf) {
     selectedSplitFile = file;
     document.getElementById('pdf-split-filename').innerHTML = `<i class="fa-solid fa-file-pdf text-rose-500 mr-1.5"></i>${file.name}`;
     document.getElementById('pdf-split-name').value = file.name.replace(".pdf", "_bagian.pdf");
+    showToast("File PDF berhasil dimuat!", "success");
+  } else {
+    showToast("Harap pilih berkas dengan format PDF!", "error");
+    e.target.value = "";
   }
 }
 
@@ -155,7 +184,7 @@ async function processPdfSplit() {
     const pagesToExtract = parsePageRanges(pageRangeInput, totalPages);
     
     if (pagesToExtract.length === 0) {
-      showToast("Rentang halaman tidak valid!", "error");
+      showToast("Rentang halaman tidak valid atau melebihi total halaman!", "error");
       return;
     }
     
@@ -204,34 +233,45 @@ function parsePageRanges(text, maxPages) {
 // --- LOGIKA GAMBAR KE PDF (IMAGE TO PDF) ---
 function handleImageSelect(e) {
   const files = Array.from(e.target.files);
+  let ignoredCount = 0;
+
   files.forEach(file => {
-    if (file.type === "image/jpeg" || file.type === "image/png") {
+    // PERBAIKAN: Validasi ganda tipe MIME atau ekstensi berkas gambar
+    const isImg = file.type === "image/jpeg" || file.type === "image/jpg" || file.type === "image/png" || 
+                  file.name.toLowerCase().endsWith('.jpg') || file.name.toLowerCase().endsWith('.jpeg') || 
+                  file.name.toLowerCase().endsWith('.png');
+    if (isImg) {
       selectedImgFiles.push(file);
+    } else {
+      ignoredCount++;
     }
   });
+  
+  if (ignoredCount > 0) {
+    showToast(`⚠️ ${ignoredCount} file diabaikan (Hanya mendukung gambar JPG/PNG).`, "warning");
+  }
+  
   renderImagePreviews();
-}
-
-function renderImagePreviewItem(file, index, container) {
-  const r = new FileReader();
-  r.onload = (ev) => {
-    const box = document.createElement('div');
-    box.className = "relative group rounded-xl border overflow-hidden aspect-square bg-slate-100 dark:bg-slate-900 border-slate-200 dark:border-slate-800";
-    box.innerHTML = `
-      <img src="${ev.target.result}" class="object-cover w-full h-full" />
-      <button onclick="removeImgFile(${index})" class="absolute top-1 right-1 bg-rose-600 text-white w-5 h-5 rounded-full flex items-center justify-center text-[10px] hover:bg-rose-700 transition"><i class="fa-solid fa-times"></i></button>
-    `;
-    container.appendChild(box);
-  };
-  r.readAsDataURL(file);
+  e.target.value = "";
 }
 
 function renderImagePreviews() {
   const container = document.getElementById('pdf-img-preview');
   if (!container) return;
   container.innerHTML = "";
+  
   selectedImgFiles.forEach((file, index) => {
-    renderImagePreviewItem(file, index, container);
+    const r = new FileReader();
+    r.onload = (ev) => {
+      const box = document.createElement('div');
+      box.className = "relative group rounded-xl border overflow-hidden aspect-square bg-slate-100 dark:bg-slate-900 border-slate-200 dark:border-slate-800 animate-fade-in";
+      box.innerHTML = `
+        <img src="${ev.target.result}" class="object-cover w-full h-full" />
+        <button onclick="removeImgFile(${index})" class="absolute top-1 right-1 bg-rose-600 text-white w-5 h-5 rounded-full flex items-center justify-center text-[10px] hover:bg-rose-700 transition" title="Hapus"><i class="fa-solid fa-times"></i></button>
+      `;
+      container.appendChild(box);
+    };
+    r.readAsDataURL(file);
   });
 }
 
@@ -254,9 +294,9 @@ async function processImageToPdf() {
     for (const file of selectedImgFiles) {
       const arrayBuffer = await file.arrayBuffer();
       let embeddedImage;
-      if (file.type === "image/jpeg" || file.type === "image/jpg") {
+      if (file.type === "image/jpeg" || file.type === "image/jpg" || file.name.toLowerCase().endsWith('.jpg') || file.name.toLowerCase().endsWith('.jpeg')) {
         embeddedImage = await pdfDoc.embedJpg(arrayBuffer);
-      } else if (file.type === "image/png") {
+      } else if (file.type === "image/png" || file.name.toLowerCase().endsWith('.png')) {
         embeddedImage = await pdfDoc.embedPng(arrayBuffer);
       }
       
@@ -356,7 +396,11 @@ async function processTextToPdf() {
 // --- LOGIKA PDF KE WORD (PDF TO WORD TEXT EXTRACTION) ---
 async function handlePdfToWordSelect(e) {
   const file = e.target.files[0];
-  if (file && file.type === "application/pdf") {
+  if (!file) return;
+
+  // PERBAIKAN: Validasi tipe MIME atau ekstensi .pdf
+  const isPdf = file.type === "application/pdf" || file.name.toLowerCase().endsWith('.pdf');
+  if (isPdf) {
     selectedWordFile = file;
     document.getElementById('pdf-to-word-filename').innerHTML = `<i class="fa-solid fa-file-pdf text-rose-500 mr-1.5"></i>${file.name}`;
     
@@ -372,4 +416,74 @@ async function handlePdfToWordSelect(e) {
       const firstPageText = textContent.items.map(item => item.str).join(' ');
       
       if (previewEl) {
-        previewEl.textContent = firstPageText.substring(0, 15
+        previewEl.textContent = firstPageText.substring(0, 150) + (firstPageText.length > 150 ? "..." : "");
+      }
+    } catch (err) {
+      console.error("Gagal membaca preview PDF:", err);
+      if (previewEl) previewEl.textContent = "Gagal memuat teks preview PDF.";
+    }
+  } else {
+    showToast("Harap pilih berkas dengan format PDF!", "error");
+    e.target.value = "";
+  }
+}
+
+async function processPdfToWord() {
+  if (!selectedWordFile) {
+    showToast("Pilih berkas PDF terlebih dahulu!", "warning");
+    return;
+  }
+  
+  showToast("Membaca seluruh teks PDF secara offline...", "warning");
+  try {
+    const arrayBuffer = await selectedWordFile.arrayBuffer();
+    const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+    let fullTextResult = "";
+    
+    for (let i = 1; i <= pdf.numPages; i++) {
+      const page = await pdf.getPage(i);
+      const textContent = await page.getTextContent();
+      const pageText = textContent.items.map(item => item.str).join(' ');
+      fullTextResult += `[Halaman ${i}]\n\n${pageText}\n\n`;
+    }
+    
+    if (!fullTextResult.trim()) {
+      showToast("Gagal mendeteksi teks. Berkas PDF ini mungkin hasil scan (berbentuk gambar).", "warning");
+      return;
+    }
+    
+    // Trik mengunduh teks ke Word (.doc) yang kompatibel dibaca MS Word
+    const blobHtml = `
+      <html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'>
+      <head><title>Ekstraksi Dokumen PDF ke Word</title>
+      <style>body { font-family: Arial, sans-serif; line-height: 1.6; }</style>
+      </head>
+      <body>
+        <div style="white-space: pre-line;">${fullTextResult}</div>
+      </body>
+      </html>
+    `;
+    
+    const docBytes = new TextEncoder().encode(blobHtml);
+    const outName = selectedWordFile.name.replace(".pdf", "_ekstrak.doc");
+    triggerBlobDownload(docBytes, outName, "application/msword");
+    showToast("Berkas Word (.doc) berhasil diunduh!", "success");
+    resetPdfWorkspaces();
+  } catch (err) {
+    console.error("Gagal mengubah PDF ke Word:", err);
+    showToast("Proses konversi PDF ke Word gagal.", "error");
+  }
+}
+
+// Pemicu Unduh Blob Data
+function triggerBlobDownload(bytes, filename, mimeType) {
+  const blob = new Blob([bytes], { type: mimeType });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
