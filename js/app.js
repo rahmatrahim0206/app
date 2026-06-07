@@ -19,7 +19,7 @@ var CONFIG = {
   IDLE_LIMIT_MINUTES: 15
 };
 
-// Deklarasi Variabel State Global (Kini menyertakan globalMasterPin untuk perbaikan bug klik PIN)
+// Deklarasi Variabel State Global
 var activeCategory = 'semua';
 var linksData = [];
 var agendaData = [];
@@ -34,7 +34,7 @@ var toastTimeoutId = null;
 var activeConfirmCallback = null;
 var idleTimeCounter = 0;
 var sessionLocked = false;
-var globalMasterPin = ""; // PERBAIKAN BUG: Deklarasi penampung PIN agar tidak terjadi ReferenceError saat tombol diklik
+var globalMasterPin = ""; // Penampung PIN global aman
 
 // Template Baku Siaran WhatsApp
 var defaultWaTemplates = [
@@ -117,18 +117,26 @@ function bootstrapApplication() {
   const pinScreen = document.getElementById('master-pin-screen');
   if (pinScreen) pinScreen.classList.add('hidden');
 
-  linksData = secureRead(CONFIG.STORAGE_PREFIX + 'links');
-  // PERBAIKAN: Tangani juga array kosong [] agar otomatis diredirect ke seeding bawaan
+  try {
+    linksData = secureRead(CONFIG.STORAGE_PREFIX + 'links');
+  } catch (e) {
+    linksData = null;
+  }
+
+  // PERBAIKAN BUG UTAMA: Memberikan penanganan awal instan agar renderDynamicLinks() tidak crash
   if (!linksData || linksData.length === 0) {
+    linksData = typeof defaultSeedLinks !== 'undefined' ? [...defaultSeedLinks] : [];
+    
     fetch('data/default-links.json')
       .then(res => res.json())
       .then(data => {
-        linksData = data;
-        saveLinks();
-        renderDynamicLinks();
+        if (data && data.length > 0) {
+          linksData = data;
+          saveLinks();
+          renderDynamicLinks();
+        }
       })
       .catch(() => {
-        linksData = [...defaultSeedLinks];
         saveLinks();
         renderDynamicLinks();
       });
