@@ -63,7 +63,7 @@ function renderDynamicLinks() {
 
   const q = document.getElementById('search-input').value.toLowerCase().trim();
   let total = 0;
-  let counts = { semua: 0, utama: 0, verval: 0, keuangan: 0, guru: 0, kepegawaian: 0, "2fa_auth": 0, ujian: 0, daerah: 0 };
+  let counts = { semua: 0, utama: 0, verval: 0, keuangan: 0, guru: 0, kepegawaian: 0, pdf_tools: 5, "2fa_auth": 0, ujian: 0, daerah: 0 };
 
   linksData.forEach(l => {
     if (l.title.toLowerCase().includes(q) || l.desc.toLowerCase().includes(q)) {
@@ -120,14 +120,24 @@ function selectCategory(cat) {
   activeCategory = cat;
   const p2Fa = document.getElementById('panel-2fa-main-auth');
   const pLinks = document.getElementById('panel-links-main-wrapper');
-  if (p2Fa && pLinks) {
+  const pPdf = document.getElementById('panel-pdf-tools-wrapper');
+  
+  if (p2Fa && pLinks && pPdf) {
     if (cat === '2fa_auth') {
       p2Fa.classList.remove('hidden');
       pLinks.classList.add('hidden');
+      pPdf.classList.add('hidden');
       renderAuthenticatorKeys();
+    } else if (cat === 'pdf_tools') {
+      p2Fa.classList.add('hidden');
+      pLinks.classList.add('hidden');
+      pPdf.classList.remove('hidden');
+      // Jalankan fungsi setel ulang input PDF saat tab aktif dibuka
+      if (typeof resetPdfWorkspaces === 'function') resetPdfWorkspaces();
     } else {
       p2Fa.classList.add('hidden');
       pLinks.classList.remove('hidden');
+      pPdf.classList.add('hidden');
     }
   }
   
@@ -149,7 +159,14 @@ function filterLinksOrKeys() {
   const s = document.getElementById('search-input'); 
   const c = document.getElementById('clear-search');
   if (s && c) s.value.trim().length > 0 ? c.classList.remove('hidden') : c.classList.add('hidden');
-  activeCategory === '2fa_auth' ? renderAuthenticatorKeys() : renderDynamicLinks();
+  
+  if (activeCategory === '2fa_auth') {
+    renderAuthenticatorKeys();
+  } else if (activeCategory === 'pdf_tools') {
+    // Ruang kerja PDF tidak dipengaruhi filter tautan biasa
+  } else {
+    renderDynamicLinks();
+  }
 }
 
 function clearSearchInput() { 
@@ -158,7 +175,7 @@ function clearSearchInput() {
   filterLinksOrKeys(); 
 }
 
-// --- SISTEM PANEL TAB KOTAK 1 (KALENDER & BUKU SAKU MEMO) ---
+// --- SISTEM PANEL TAB KOTAK 1 (KALENDER & MEMO) ---
 function switchCalendarMemoTab(t) {
   const calendarBtn = document.getElementById('btn-tab-calendar');
   const memoBtn = document.getElementById('btn-tab-memo');
@@ -582,10 +599,12 @@ function startCutOffCountdown() {
     secondsEl.textContent = s < 10 ? '0' + s : s;
   }
   
+  // Eksekusi pertama kali secara instan (Menghapus kedipan loading "--")
   updateCountdown();
   setInterval(updateCountdown, 1000);
 }
 
+// Berkas Sumber Manifest & Service Worker untuk Unduhan Paket Luring
 const manifestJsonText = `{\n  "name": "DAPO-HUB SPENTIG",\n  "short_name": "DAPO-HUB",\n  "description": "Portal Integrasi Operator Dapodik & IT SMP Negeri 3 Makassar",\n  "start_url": "index.html",\n  "display": "standalone",\n  "background_color": "#f8fafc",\n  "theme_color": "#2563eb",\n  "icons": [\n    {\n      "src": "https://cdn-icons-png.flaticon.com/512/2210/2210143.png",\n      "sizes": "512x512",\n      "type": "image/png"\n    }\n  ]\n}`;
 
 const serviceWorkerJsText = `
@@ -599,12 +618,15 @@ const serviceWorkerJsText = `
     './js/storage.js',
     './js/otp.js',
     './js/links.js',
+    './js/pdf-tools.js',
     './js/ui.js',
     './js/app.js',
     'https://cdn.tailwindcss.com',
     'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css',
     'https://cdnjs.cloudflare.com/ajax/libs/html5-qrcode/2.3.8/html5-qrcode.min.js',
-    'https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.2.0/crypto-js.min.js'
+    'https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.2.0/crypto-js.min.js',
+    'https://unpkg.com/pdf-lib@1.17.1/dist/pdf-lib.min.js',
+    'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.min.js'
   ];
   self.addEventListener('install', (e) => e.waitUntil(caches.open(CACHE_NAME).then((c) => c.addAll(ASSETS_TO_CACHE))));
   self.addEventListener('activate', (e) => e.waitUntil(caches.keys().then((keys) => Promise.all(keys.filter(k => k !== CACHE_NAME).map(k => caches.delete(k))))));
