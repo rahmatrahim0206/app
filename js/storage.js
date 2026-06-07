@@ -5,7 +5,7 @@
 function secureSave(key, rawData) {
   try {
     const stringified = JSON.stringify(rawData);
-    if (typeof CryptoJS !== 'undefined') {
+    if (typeof CryptoJS !== 'undefined' && CONFIG.SECURE_PASS_KEY) {
       localStorage.setItem(key, CryptoJS.AES.encrypt(stringified, CONFIG.SECURE_PASS_KEY).toString());
     } else {
       localStorage.setItem(key, stringified);
@@ -22,7 +22,7 @@ function secureRead(key) {
     if (rawValue.startsWith('[') || rawValue.startsWith('{') || rawValue.startsWith('"')) {
       return JSON.parse(rawValue);
     }
-    if (typeof CryptoJS !== 'undefined') {
+    if (typeof CryptoJS !== 'undefined' && CONFIG.SECURE_PASS_KEY) {
       const dec = CryptoJS.AES.decrypt(rawValue, CONFIG.SECURE_PASS_KEY).toString(CryptoJS.enc.Utf8);
       return dec ? JSON.parse(dec) : null;
     }
@@ -74,7 +74,8 @@ function importBackupData(e) {
         saveAuthenticatorKeys();
         
         renderAll();
-        initCalendar(); // Render ulang penanda kalender
+        initCalendar(); 
+        renderQuickNotes();
         showToast("Seluruh data sistem berhasil dipulihkan!"); 
       } catch (ex) {
         showToast("Format berkas cadangan tidak dikenali atau rusak.", "error");
@@ -84,20 +85,18 @@ function importBackupData(e) {
   } 
 }
 
-// Tombol Prosedur Reset Darurat (Menghapus Data Sensitif & Merender Ulang DOM secara Responsif)
+// Tombol Prosedur Reset Darurat (Menghapus Data Sensitif & Reload)
 function triggerEmergencyReset() {
   showCustomConfirm(
     "Lakukan Atur Ulang Darurat?", 
-    "PERINGATAN SENSITIF: Tindakan ini akan menghapus seluruh data Anda secara permanen dari browser ini, termasuk kunci keamanan 2FA, catatan memo, agenda, serta tautan kustom. Sistem akan dimuat ulang ke pengaturan awal pabrik.", 
+    "PERINGATAN SENSITIF: Tindakan ini akan menghapus seluruh data Anda secara permanen dari browser ini, termasuk Master PIN, kunci keamanan 2FA, catatan memo, agenda, serta tautan kustom. Sistem akan dimuat ulang ke pengaturan awal pabrik.", 
     () => {
-      const keysToRemove = ['links', 'agendas', 'notes', 'auth-keys', 'wa-templates'];
+      const keysToRemove = ['links', 'agendas', 'notes', 'auth-keys', 'wa-templates', 'master-pin'];
       keysToRemove.forEach(key => {
         localStorage.removeItem(CONFIG.STORAGE_PREFIX + key);
       });
       
-      // Update penunjuk waktu responsif secara instan
       updateClock();
-      
       showToast("Prosedur darurat dijalankan. Memuat ulang sistem...", "error");
       setTimeout(() => {
         window.location.reload();
