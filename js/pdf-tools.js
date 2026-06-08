@@ -75,7 +75,6 @@ function handleMergeFilesSelect(e) {
   let ignoredCount = 0;
   
   files.forEach(file => {
-    // PERBAIKAN: Validasi ganda tipe MIME atau ekstensi nama berkas .pdf
     const isPdf = file.type === "application/pdf" || file.name.toLowerCase().endsWith('.pdf');
     if (isPdf) {
       selectedMergeFiles.push(file);
@@ -91,7 +90,7 @@ function handleMergeFilesSelect(e) {
   }
   
   renderMergeFilesList();
-  e.target.value = ""; // Reset input file agar bisa memilih file yang sama jika diinginkan
+  e.target.value = ""; 
 }
 
 function renderMergeFilesList() {
@@ -148,7 +147,6 @@ function handleSplitFileSelect(e) {
   const file = e.target.files[0];
   if (!file) return;
 
-  // PERBAIKAN: Validasi tipe MIME atau ekstensi .pdf
   const isPdf = file.type === "application/pdf" || file.name.toLowerCase().endsWith('.pdf');
   if (isPdf) {
     selectedSplitFile = file;
@@ -188,7 +186,6 @@ async function processPdfSplit() {
       return;
     }
     
-    // Copy halaman terpilih (Zero-indexed)
     const copiedPages = await splitDoc.copyPages(pdfDoc, pagesToExtract.map(p => p - 1));
     copiedPages.forEach(page => splitDoc.addPage(page));
     
@@ -205,7 +202,6 @@ async function processPdfSplit() {
   }
 }
 
-// Parsing halaman "1-3, 5" ke array bilangan bulat [1, 2, 3, 5]
 function parsePageRanges(text, maxPages) {
   const pages = [];
   const parts = text.split(',');
@@ -236,7 +232,6 @@ function handleImageSelect(e) {
   let ignoredCount = 0;
 
   files.forEach(file => {
-    // PERBAIKAN: Validasi ganda tipe MIME atau ekstensi berkas gambar
     const isImg = file.type === "image/jpeg" || file.type === "image/jpg" || file.type === "image/png" || 
                   file.name.toLowerCase().endsWith('.jpg') || file.name.toLowerCase().endsWith('.jpeg') || 
                   file.name.toLowerCase().endsWith('.png');
@@ -334,7 +329,6 @@ async function processTextToPdf() {
     const pdfDoc = await PDFDocument.create();
     const font = await pdfDoc.embedFont(StandardFonts.Helvetica);
     
-    // Konfigurasi Standar Margin Halaman (A4)
     const pageWidth = 595.28;
     const pageHeight = 841.89;
     const margin = 50;
@@ -345,7 +339,6 @@ async function processTextToPdf() {
     let page = pdfDoc.addPage([pageWidth, pageHeight]);
     let currentY = pageHeight - margin;
     
-    // Logika Pemisahan Baris Teks agar Sesuai Margin A4
     const paragraphs = textContent.split('\n');
     
     for (let para of paragraphs) {
@@ -377,7 +370,7 @@ async function processTextToPdf() {
         page.drawText(line.trim(), { x: margin, y: currentY, size: fontSize, font: font, color: rgb(0.1, 0.1, 0.1) });
         currentY -= lineHeight;
       }
-      currentY -= lineHeight * 0.5; // Jarak antar paragraf
+      currentY -= lineHeight * 0.5; 
     }
     
     const pdfBytes = await pdfDoc.save();
@@ -393,6 +386,7 @@ async function processTextToPdf() {
   }
 }
 
+// --- LOGIKA PDF KE WORD (PDF TO WORD) ---
 async function handlePdfToWordSelect(e) {
   const file = e.target.files[0];
   if (!file) return;
@@ -411,12 +405,11 @@ async function handlePdfToWordSelect(e) {
       const page = await pdf.getPage(1);
       const textContent = await page.getTextContent();
       
-      // Restrukturisasi koordinat vertikal untuk preview halaman pertama
       const lines = {};
       textContent.items.forEach(item => {
         if (!item.str || item.str.trim() === '') return;
         const y = Math.round(item.transform[5]);
-        let foundY = Object.keys(lines).find(existingY => Math.abs(existingY - y) < 6);
+        let foundY = Object.keys(lines).find(existingY => Math.abs(existingY - y) < 4);
         if (foundY) {
           lines[foundY].push(item);
         } else {
@@ -460,14 +453,13 @@ async function processPdfToWord() {
       const page = await pdf.getPage(i);
       const textContent = await page.getTextContent();
       
-      // Mengelompokkan item teks berdasarkan koordinat vertikal Y (untuk menyusun ulang baris asli)
+      // Mengelompokkan kata berdasarkan toleransi koordinat vertikal (Y-coordinate) yang lebih rapat (4pt)
       const lines = {};
       textContent.items.forEach(item => {
         if (!item.str || item.str.trim() === '') return;
         const y = Math.round(item.transform[5]);
         
-        // Gabungkan baris jika jarak perbedaan Y di bawah 6 point
-        let foundY = Object.keys(lines).find(existingY => Math.abs(existingY - y) < 6);
+        let foundY = Object.keys(lines).find(existingY => Math.abs(existingY - y) < 4);
         if (foundY) {
           lines[foundY].push(item);
         } else {
@@ -475,36 +467,37 @@ async function processPdfToWord() {
         }
       });
       
-      // Urutkan baris dari atas halaman ke bawah (Y besar ke kecil)
+      // Urutkan baris halaman dari atas ke bawah
       const sortedYKeys = Object.keys(lines).map(Number).sort((a, b) => b - a);
       
       let pageHtml = "";
       sortedYKeys.forEach(y => {
-        // Urutkan kata dari kiri ke kanan (X kecil ke besar)
+        // Urutkan potongan teks horizontal secara presisi dari kiri ke kanan (X-coordinate)
         const lineItems = lines[y].sort((a, b) => a.transform[4] - b.transform[4]);
-        const lineStr = lineItems.map(item => item.str).join(' ').trim();
+        const lineStr = lineItems.map(item => item.str).join(' ').replace(/\s+/g, ' ').trim();
         
         if (lineStr.length > 0) {
-          // Mendeteksi baris judul / kop surat agar otomatis berformat heading di Word
-          if (lineStr.length < 80 && (lineStr === lineStr.toUpperCase() || lineStr.startsWith("BAB ") || lineStr.startsWith("KEMENTERIAN") || lineStr.startsWith("KEPUTUSAN"))) {
-            pageHtml += `<p style="margin-top: 14pt; margin-bottom: 6pt; font-family: 'Segoe UI', Arial, sans-serif; font-size: 12pt; font-weight: bold; text-align: center; color: #1a365d;">${lineStr}</p>`;
+          // Deteksi baris judul / kop formal untuk diklasifikasikan sebagai Heading Word
+          if (lineStr.length < 85 && (lineStr === lineStr.toUpperCase() || lineStr.startsWith("BAB ") || lineStr.startsWith("KEMENTERIAN") || lineStr.startsWith("KEPUTUSAN") || lineStr.startsWith("PEMERINTAH"))) {
+            pageHtml += `<p class="MsoHeading" style="margin-top: 12pt; margin-bottom: 4pt; font-family: 'Segoe UI', Arial, sans-serif; font-size: 11pt; font-weight: bold; text-align: center; color: #111827; line-height: 1.2;">${lineStr}</p>`;
           } else {
-            pageHtml += `<p style="margin: 0 0 8pt 0; text-align: justify; font-family: 'Calibri', Arial, sans-serif; font-size: 11pt; line-height: 1.5; text-indent: 0.5in; color: #2d3748;">${lineStr}</p>`;
+            // Gunakan format paragraf normal dengan standarisasi margin MS Word (MsoNormal) untuk menghindari spasi ganda bawaan HTML
+            pageHtml += `<p class="MsoNormal" style="margin-bottom: 6pt; text-align: justify; font-family: 'Calibri', Arial, sans-serif; font-size: 11pt; line-height: 1.25; text-indent: 0.35in; color: #1f2937;">${lineStr}</p>`;
           }
         }
       });
       
       htmlPagesContent += `
-        <!-- Rentang Halaman Dokumen -->
-        <p class="page-header" style="font-family: 'Segoe UI', sans-serif; font-size: 9pt; color: #a0aec0; border-bottom: 1px solid #e2e8f0; padding-bottom: 3px; margin-bottom: 18pt; text-transform: uppercase; font-weight: bold;">Halaman ${i} dari ${pdf.numPages}</p>
-        <div style="margin-bottom: 30pt;">
-          ${pageHtml || '<p style="color: #cbd5e0; font-style: italic;">Tidak ada teks terdeteksi di halaman ini.</p>'}
+        <!-- Halaman ${i} -->
+        <p class="MsoNormal" style="font-family: 'Segoe UI', sans-serif; font-size: 8.5pt; color: #9ca3af; border-bottom: 0.5pt solid #e5e7eb; padding-bottom: 2px; margin-bottom: 12pt; text-transform: uppercase; font-weight: bold;">Halaman ${i} dari ${pdf.numPages}</p>
+        <div style="margin-bottom: 24pt;">
+          ${pageHtml || '<p class="MsoNormal" style="color: #9ca3af; font-style: italic;">Tidak ada teks terdeteksi di halaman ini.</p>'}
         </div>
       `;
       
-      // Sisipkan batas halaman fisik MS Word
+      // Sisipkan pembagi halaman fisik (Native MS Word Page Break)
       if (i < pdf.numPages) {
-        htmlPagesContent += `<br style="page-break-before: always; clear: both; mso-break-type: section-break;" />`;
+        htmlPagesContent += `<br clear="all" style="page-break-before: always; mso-break-type: section-break;" />`;
       }
     }
     
@@ -513,7 +506,7 @@ async function processPdfToWord() {
       return;
     }
     
-    // Desain cetakan markup dokumen A4 premium Word
+    // Konstruksi templat HTML Dokumen A4 Terstandar Microsoft Word dengan integrasi @page dan Mso Stylesheet
     const blobHtml = `
       <html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'>
       <head>
@@ -529,20 +522,41 @@ async function processPdfToWord() {
         <![endif]-->
         <style>
           @page Section1 {
-            size: 595.3pt 841.9pt; /* Ukuran A4 */
-            margin: 1.0in 1.0in 1.0in 1.0in; /* Margin standar */
-            mso-header-margin: .5in;
-            mso-footer-margin: .5in;
+            size: 595.3pt 841.9pt; /* Ukuran Kertas A4 Resmi */
+            margin: 72.0pt 72.0pt 72.0pt 72.0pt; /* Margin Standar 1 Inci (Sekitar 2.54cm) */
+            mso-header-margin: 36.0pt;
+            mso-footer-margin: 36.0pt;
             mso-paper-source: 0;
           }
           div.Section1 {
             page: Section1;
           }
+          /* Pengaturan global MS Word Class Stylesheet */
+          p.MsoNormal, li.MsoNormal, div.MsoNormal {
+            mso-style-parent: "";
+            margin: 0in;
+            margin-bottom: 4pt;
+            mso-pagination: widow-orphan;
+            font-size: 11.0pt;
+            font-family: "Calibri", sans-serif;
+            mso-ascii-font-family: Calibri;
+            mso-hansi-font-family: Calibri;
+            mso-bidi-font-family: "Times New Roman";
+            line-height: 1.15;
+          }
+          p.MsoHeading {
+            margin-top: 12.0pt;
+            margin-bottom: 3.0pt;
+            mso-pagination: widow-orphan;
+            page-break-after: avoid;
+            font-size: 12.0pt;
+            font-family: "Segoe UI", sans-serif;
+            font-weight: bold;
+          }
           body {
             font-family: 'Calibri', 'Arial', sans-serif;
             font-size: 11pt;
-            color: #2D3748;
-            line-height: 1.5;
+            color: #1f2937;
             background-color: #ffffff;
           }
         </style>
