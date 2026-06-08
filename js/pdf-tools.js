@@ -598,7 +598,6 @@ async function processPdfToWord() {
       
       htmlPagesContent += `
         <!-- Halaman ${pNum} -->
-        <p class="MsoNormal" style="font-family: 'Segoe UI', sans-serif; font-size: 8pt; color: #9ca3af; border-bottom: 0.5pt solid #e5e7eb; padding-bottom: 2px; margin-bottom: 12pt; text-transform: uppercase; font-weight: bold;">Halaman ${pNum} dari ${pdf.numPages}</p>
         <div style="margin-bottom: 24pt;">
           ${pageHtml}
         </div>
@@ -635,6 +634,8 @@ async function processPdfToWord() {
             margin: 72.0pt 72.0pt 72.0pt 72.0pt; /* Margin Standar 1 Inci (Sekitar 2.54cm) */
             mso-header-margin: 36.0pt;
             mso-footer-margin: 36.0pt;
+            mso-header: h1;
+            mso-footer: f1;
             mso-paper-source: 0;
           }
           div.Section1 {
@@ -662,6 +663,12 @@ async function processPdfToWord() {
             font-family: "Segoe UI", sans-serif;
             font-weight: bold;
           }
+          p.MsoHeader, p.MsoFooter {
+            margin: 0in;
+            mso-pagination: widow-orphan;
+            font-size: 8.5pt;
+            font-family: "Segoe UI", sans-serif;
+          }
           body {
             font-family: 'Calibri', 'Arial', sans-serif;
             font-size: 11pt;
@@ -671,6 +678,16 @@ async function processPdfToWord() {
         </style>
       </head>
       <body>
+        <!-- Elemen Header & Footer Asli MS Word (Akan disembunyikan dalam halaman dan masuk ke sistem Footer asli) -->
+        <div style="mso-element:header" id="h1">
+          <p class="MsoHeader" style="text-align: right; border-bottom: 0.5pt solid #e5e7eb; padding-bottom: 3px; color: #9ca3af; text-transform: uppercase; font-weight: bold;">Dokumen Hasil Ekstraksi Dapodik</p>
+        </div>
+        <div style="mso-element:footer" id="f1">
+          <p class="MsoFooter" style="text-align: center; color: #9ca3af; border-top: 0.5pt solid #e5e7eb; padding-top: 3px;">
+            Halaman <span style="mso-field-code:'PAGE'"></span> dari <span style="mso-field-code:'NUMPAGES'"></span>
+          </p>
+        </div>
+        
         <div class="Section1">
           ${htmlPagesContent}
         </div>
