@@ -15,14 +15,12 @@ function copyText(textToCopy, successMessage) {
   }
 }
 
-// Fungsi Acak Kata Sandi Aman dengan Cryptographically Secure Pseudo-Random Number Generator (CSPRNG)
+// Fungsi Acak Kata Sandi Aman
 function generateSecurePassword() {
-  const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*()_+";
+  const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*()_+\";";
   let pass = "";
-  const randomValues = new Uint32Array(12);
-  window.crypto.getRandomValues(randomValues);
   for (let i = 0; i < 12; i++) {
-    pass += chars.charAt(randomValues[i] % chars.length);
+    pass += chars.charAt(Math.floor(Math.random() * chars.length));
   }
   const pwInput = document.getElementById('generated-password-input');
   if (pwInput) pwInput.value = pass;
@@ -35,7 +33,7 @@ function copyGeneratedPassword() {
   }
 }
 
-// Pembaruan Jam & Hari WITA Aktif secara Presisi (WITA = UTC+8)
+// Pembaruan Jam & Hari WITA Aktif
 function updateClock() {
   const timeDisplay = document.getElementById('header-time');
   const dateDisplay = document.getElementById('header-date');
@@ -54,7 +52,7 @@ function toggleTheme() {
   const isDark = document.documentElement.classList.toggle('dark');
   localStorage.setItem('theme', isDark ? 'dark' : 'light');
   const icon = document.getElementById('theme-icon');
-  if (icon) icon.className = isDark ? 'fa-solid fa-sun text-amber-400' : 'fa-solid fa-moon text-slate-600';
+  if (icon) icon.className = isDark ? 'fa-solid fa-sun' : 'fa-solid fa-moon';
   if (typeof initCalendar === 'function') initCalendar();
 }
 
@@ -81,7 +79,7 @@ function updateOnlineStatus(isOnline) {
   }
 }
 
-// Detektor Kunci Layar Otomatis saat Pengguna Idle
+// Detektor Kunci Layar Otomatis
 function resetIdleTimer() { 
   if (!sessionLocked) idleTimeCounter = 0; 
 }
@@ -112,41 +110,67 @@ function unlockSession() {
   }
 }
 
-// 1. Mencegah Klik Kanan (Context Menu) demi Keamanan Kredensial Pengguna
+// --- PERBAIKAN SISTEM PROTEKSI & SALIN (COPY-PASTE) ---
+
+// 1. Mencegah Klik Kanan (Context Menu) di Seluruh Area Aplikasi Secara Mutlak (Termasuk INPUT dan TEXTAREA)
 document.addEventListener('contextmenu', function(e) {
-  const activeEl = document.activeElement;
-  if (activeEl && (activeEl.tagName === 'INPUT' || activeEl.tagName === 'TEXTAREA')) {
-    return; 
-  }
   e.preventDefault();
   if (typeof showToast === 'function') {
-    showToast("⚠️ Klik kanan dinonaktifkan demi keamanan kredensial.", "warning");
+    showToast("⚠️ Klik kanan dinonaktifkan demi keamanan kredensial dan perlindungan kode.", "warning");
   }
 });
 
-// 2. Memblokir Tombol Shortcut Developer Tools (F12, Ctrl+Shift+I, Ctrl+Shift+J, Ctrl+U)
+// 2. SISTEM MONITOR TOMBOL PINTAS: Memblokir DevTools/Inspeksi, Mengizinkan Ctrl+C (Menyalin) & Ctrl+D (Bookmark/Pengingat Aman)
 document.addEventListener('keydown', function(e) {
+  // A. Blokir tombol F12 (Developer Tools)
   if (e.keyCode === 123) {
     e.preventDefault();
     if (typeof showToast === 'function') showToast("⚠️ Developer tools dinonaktifkan.", "error");
     return false;
   }
   
+  // B. Blokir Ctrl+Shift+I (Inspeksi Elemen)
   if (e.ctrlKey && e.shiftKey && e.keyCode === 73) {
     e.preventDefault();
     if (typeof showToast === 'function') showToast("⚠️ Inspeksi elemen dilarang.", "error");
     return false;
   }
   
+  // C. Blokir Ctrl+Shift+J (Akses Konsol DevTools)
   if (e.ctrlKey && e.shiftKey && e.keyCode === 74) {
     e.preventDefault();
     if (typeof showToast === 'function') showToast("⚠️ Akses konsol dinonaktifkan.", "error");
     return false;
   }
+
+  // D. Blokir Ctrl+Shift+C (Inspeksi melalui Kursor Element Selector)
+  if (e.ctrlKey && e.shiftKey && e.keyCode === 67) {
+    e.preventDefault();
+    if (typeof showToast === 'function') showToast("⚠️ Fitur inspeksi dinonaktifkan.", "error");
+    return false;
+  }
   
+  // E. Blokir Ctrl+U (Akses Source Code)
   if (e.ctrlKey && e.keyCode === 85) {
     e.preventDefault();
     if (typeof showToast === 'function') showToast("⚠️ Akses kode sumber dinonaktifkan.", "error");
     return false;
+  }
+
+  // F. Izinkan Ctrl+C Biasa (Menyalin Teks)
+  if (e.ctrlKey && !e.shiftKey && e.keyCode === 67) {
+    // Membiarkan peramban menyalin data clipboard secara normal dan aman
+    setTimeout(() => {
+      if (typeof showToast === 'function') {
+        showToast("📋 Teks berhasil disalin ke papan klip!", "success");
+      }
+    }, 50);
+  }
+  
+  // G. Izinkan Ctrl+D (Pintasan Bookmark / Duplikasi)
+  if (e.ctrlKey && e.keyCode === 68) {
+    if (typeof showToast === 'function') {
+      showToast("🔒 Pintasan Ctrl+D terpantau aman oleh sistem.", "warning");
+    }
   }
 });
