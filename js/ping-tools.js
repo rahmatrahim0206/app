@@ -11,13 +11,15 @@ var targetServerEndpoints = [
   { id: "srv-vervalptk", name: "Pusdatin VervalPTK (Guru)", url: "https://vervalptk.data.kemendikdasmen.go.id" },
   { id: "srv-spdatadik", name: "SP Datadik Satuan Pendidikan", url: "https://sp.datadik.kemendikdasmen.go.id" },
   { id: "srv-infogtk", name: "Info GTK (Validasi SKTP Guru)", url: "https://info.gtk.kemendikdasmen.go.id" },
-  { id: "srv-erapor", name: "Server E-Rapor SMP (Sekolah)", url: "https://rapor.smpn3makassar.sch.id" } 
+  // PERBAIKAN: Mengalihkan target uji server E-Rapor lama ke Sipintar PIP Kemendikdasmen
+  { id: "srv-pip", name: "Sipintar PIP Kemendikdasmen (Pusat)", url: "https://pip.kemendikdasmen.go.id" } 
 ];
 
 function updateDynamicRaporEndpoint() {
-  const eraporSrv = targetServerEndpoints.find(s => s.id === "srv-erapor");
-  if (eraporSrv && typeof CONFIG !== 'undefined' && CONFIG.RAPOR_URL) {
-    eraporSrv.url = CONFIG.RAPOR_URL;
+  const pipSrv = targetServerEndpoints.find(s => s.id === "srv-pip");
+  if (pipSrv && typeof CONFIG !== 'undefined' && CONFIG.RAPOR_URL) {
+    // Tetap memegang parameter fallback jika config ingin di-override dinamis
+    pipSrv.url = CONFIG.RAPOR_URL.includes("rapor") ? "https://pip.kemendikdasmen.go.id" : CONFIG.RAPOR_URL;
   }
 }
 
