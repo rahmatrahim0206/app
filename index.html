@@ -115,7 +115,7 @@
                     <span id="view-school-badge" class="text-[8px] font-bold text-slate-400 font-mono tracking-widest mt-1">DAPO</span>
                   </div>
                 </div>
-                <span id="status-badge" class="absolute -bottom-1 -right-1 block h-5 w-5 rounded-full ring-4 ring-white dark:ring-slate-800 bg-emerald-500 flex items-center justify-center text-[10px] text-white font-bold transition-colors duration-300" title="Koneksi Aktif">
+                <span id="status-badge" class="absolute -bottom-1 -right-1 block h-5 w-5 rounded-full ring-4 ring-white dark:ring-slate-800 bg-emerald-500 flex items-center justify-center text-[10px] text-white font-bold transition-colors duration-300" title="Koneksi Status">
                   <i id="status-badge-icon" class="fa-solid fa-cloud-arrow-up animate-pulse"></i>
                 </span>
               </div>
@@ -180,7 +180,13 @@
               </button>
 
               <button onclick="selectCategory('2fa_auth')" data-category="2fa_auth" class="category-tab inline-flex lg:flex items-center justify-between w-auto lg:w-full px-4 py-2.5 text-xs font-bold rounded-xl bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-400 hover:bg-slate-200"><span class="flex items-center gap-1"><i class="fa-solid fa-shield-halved text-blue-500"></i> Kunci Keamanan</span> <span id="badge-2fa_auth" class="ml-1.5 bg-slate-200 dark:bg-slate-700 px-1.5 py-0.5 rounded text-[10px] font-mono">0</span></button>
-              <button onclick="selectCategory('ujian')" data-category="ujian" class="category-tab inline-flex lg:flex items-center justify-between w-auto lg:w-full px-4 py-2.5 text-xs font-bold rounded-xl bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-400 hover:bg-slate-200"><span>Ujian ANBK</span> <span id="badge-ujian" class="ml-1.5 bg-slate-200 dark:bg-slate-700 px-1.5 py-0.5 rounded text-[10px] font-mono">0</span></button>
+              
+              <!-- PERBAIKAN: Mengubah "Ujian ANBK" menjadi "Portal TKA" pada daftar navigasi -->
+              <button onclick="selectCategory('portal_tka')" data-category="portal_tka" class="category-tab inline-flex lg:flex items-center justify-between w-auto lg:w-full px-4 py-2.5 text-xs font-bold rounded-xl bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-400 hover:bg-slate-200">
+                <span>Portal TKA</span> 
+                <span id="badge-portal_tka" class="ml-1.5 bg-slate-200 dark:bg-slate-700 px-1.5 py-0.5 rounded text-[10px] font-mono">0</span>
+              </button>
+              
               <button onclick="selectCategory('daerah')" data-category="daerah" class="category-tab inline-flex lg:flex items-center justify-between w-auto lg:w-full px-4 py-2.5 text-xs font-bold rounded-xl bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-400 hover:bg-slate-200"><span>Portal Daerah</span> <span id="badge-daerah" class="ml-1.5 bg-slate-200 dark:bg-slate-700 px-1.5 py-0.5 rounded text-[10px] font-mono">0</span></button>
             </nav>
           </div>
@@ -505,7 +511,7 @@
                   <div class="text-center z-10 space-y-1">
                     <span id="speedtest-current-val" class="block font-space font-black text-5xl tracking-tight text-slate-900 dark:text-white transition-all duration-100">0.0</span>
                     <span class="text-[10px] font-black uppercase tracking-widest text-slate-400">Mbps</span>
-                    <span id="speedtest-current-status" class="inline-block text-[10px] font-bold px-2 py-0.5 rounded bg-slate-100 dark:bg-slate-900 text-slate-500 mt-2">Menunggu...</span>
+                    <span id="speedtest-current-status" class="inline-block text-[10px] font-bold px-2 py-0.5 rounded bg-slate-100 dark:bg-slate-900 text-slate-500 mt-2">Waiting...</span>
                   </div>
                 </div>
               </div>
@@ -690,8 +696,8 @@
     </div>
 
     <!-- LOCK SCREEN OVERLAY -->
-    <div id="idle-lock-screen" class="fixed inset-0 z-50 bg-slate-950/90 backdrop-blur-md flex flex-col items-center justify-center pointer-events-none opacity-0 transition-all duration-500">
-      <div class="text-center p-8 max-w-sm mx-4 rounded-3xl bg-slate-900 border border-slate-800 shadow-2xl space-y-6 transform scale-95 transition-transform duration-500 font-sans" id="lock-card">
+    <div id="idle-lock-screen" class="fixed inset-0 z-50 bg-slate-950/90 backdrop-blur-md flex flex-col items-center justify-center pointer-events-none opacity-0 transition-all duration-500 font-sans">
+      <div class="text-center p-8 max-w-sm mx-4 rounded-3xl bg-slate-900 border border-slate-800 shadow-2xl space-y-6 transform scale-95 transition-transform duration-500" id="lock-card">
         <div class="w-20 h-20 mx-auto rounded-full bg-blue-600/15 border border-blue-500/30 flex items-center justify-center text-blue-500 animate-pulse text-3xl">
           <i class="fa-solid fa-shield-halved"></i>
         </div>
@@ -706,8 +712,8 @@
     </div>
 
     <!-- MODAL CONFIRMATION CUSTOM -->
-    <div id="custom-confirm-modal" class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-sm opacity-0 pointer-events-none transition-all duration-300">
-      <div class="bg-white dark:bg-slate-800 w-full max-w-sm mx-4 p-6 rounded-3xl border shadow-2xl relative transform scale-95 transition-all duration-300 font-sans">
+    <div id="custom-confirm-modal" class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-sm opacity-0 pointer-events-none transition-all duration-300 font-sans">
+      <div class="bg-white dark:bg-slate-800 w-full max-w-sm mx-4 p-6 rounded-3xl border shadow-2xl relative transform scale-95 transition-all duration-300">
         <div class="text-center space-y-4">
           <div class="w-14 h-14 mx-auto rounded-full bg-amber-50 dark:bg-amber-950/30 text-amber-500 flex items-center justify-center text-2xl">
             <i id="confirm-modal-icon" class="fa-solid fa-circle-question"></i>
@@ -832,7 +838,7 @@
           <p id="pin-screen-desc" class="text-xs text-slate-400 leading-relaxed">Masukkan 6-digit PIN Keamanan untuk mengenkripsi seluruh kredensial 2FA dan memo secara aman di komputer ini.</p>
         </div>
         <div class="space-y-4">
-          <input type="password" id="pin-input-field" maxlength="6" pattern="[0-9]*" inputmode="numeric" placeholder="••••••" onkeydown="if(event.key === 'Enter') handlePinSubmit()" class="w-full tracking-[1em] text-center text-2xl font-bold p-3 bg-slate-950 border border-slate-800 rounded-xl text-white outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/30 transition" />
+          <input type="password" id="pin-input-field" maxlength="6" pattern="[0-9]*" inputmode="numeric" placeholder="••••••" onkeydown="if(event.key === 'Enter') handlePinSubmit()" class="w-full tracking-[1.5em] text-center text-2xl font-bold p-3 bg-slate-950 border border-slate-800 rounded-xl text-white outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/30 transition" />
           <button id="btn-submit-pin" onclick="handlePinSubmit()" class="w-full py-3 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl text-xs transition duration-200 shadow-lg shadow-blue-500/20">
             <span id="pin-btn-text">Atur PIN Baru</span>
           </button>
