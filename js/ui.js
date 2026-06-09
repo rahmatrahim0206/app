@@ -80,6 +80,13 @@ window.renderDynamicLinks = function() {
     linksData = typeof defaultSeedLinks !== 'undefined' ? [...defaultSeedLinks] : [];
   }
 
+  // NORMALISASI & MIGRASI DATA: Mengubah kategori lama 'ujian' ke kategori baru 'portal_tka' secara real-time
+  linksData.forEach(l => {
+    if (l.category === 'ujian') {
+      l.category = 'portal_tka';
+    }
+  });
+
   linksData.forEach(l => {
     if (l.title.toLowerCase().includes(q) || l.desc.toLowerCase().includes(q)) {
       counts[l.category] = (counts[l.category] || 0) + 1;
@@ -705,12 +712,12 @@ const serviceWorkerJsText = `
     './js/speedtest.js',
     './js/ui.js',
     './js/app.js',
-    '[https://cdn.tailwindcss.com](https://cdn.tailwindcss.com)',
-    '[https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css](https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css)',
-    '[https://cdnjs.cloudflare.com/ajax/libs/html5-qrcode/2.3.8/html5-qrcode.min.js](https://cdnjs.cloudflare.com/ajax/libs/html5-qrcode/2.3.8/html5-qrcode.min.js)',
-    '[https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.2.0/crypto-js.min.js](https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.2.0/crypto-js.min.js)',
-    '[https://unpkg.com/pdf-lib@1.17.1/dist/pdf-lib.min.js](https://unpkg.com/pdf-lib@1.17.1/dist/pdf-lib.min.js)',
-    '[https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.min.js](https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.min.js)'
+    'https://cdn.tailwindcss.com',
+    'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css',
+    'https://cdnjs.cloudflare.com/ajax/libs/html5-qrcode/2.3.8/html5-qrcode.min.js',
+    'https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.2.0/crypto-js.min.js',
+    'https://unpkg.com/pdf-lib@1.17.1/dist/pdf-lib.min.js',
+    'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.min.js'
   ];
   self.addEventListener('install', (e) => e.waitUntil(caches.open(CACHE_NAME).then((c) => c.addAll(ASSETS_TO_CACHE))));
   self.addEventListener('activate', (e) => e.waitUntil(caches.keys().then((keys) => Promise.all(keys.filter(k => k !== CACHE_NAME).map(k => caches.delete(k))))));
