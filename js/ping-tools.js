@@ -11,14 +11,12 @@ var targetServerEndpoints = [
   { id: "srv-vervalptk", name: "Pusdatin VervalPTK (Guru)", url: "https://vervalptk.data.kemendikdasmen.go.id" },
   { id: "srv-spdatadik", name: "SP Datadik Satuan Pendidikan", url: "https://sp.datadik.kemendikdasmen.go.id" },
   { id: "srv-infogtk", name: "Info GTK (Validasi SKTP Guru)", url: "https://info.gtk.kemendikdasmen.go.id" },
-  // PERBAIKAN: Mengalihkan target uji server E-Rapor lama ke Sipintar PIP Kemendikdasmen
   { id: "srv-pip", name: "Sipintar PIP Kemendikdasmen (Pusat)", url: "https://pip.kemendikdasmen.go.id" } 
 ];
 
 function updateDynamicRaporEndpoint() {
   const pipSrv = targetServerEndpoints.find(s => s.id === "srv-pip");
   if (pipSrv && typeof CONFIG !== 'undefined' && CONFIG.RAPOR_URL) {
-    // Tetap memegang parameter fallback jika config ingin di-override dinamis
     pipSrv.url = CONFIG.RAPOR_URL.includes("rapor") ? "https://pip.kemendikdasmen.go.id" : CONFIG.RAPOR_URL;
   }
 }
@@ -115,7 +113,7 @@ function updateServerCardStatus(id, state, latency) {
       dot.className = "w-2.5 h-2.5 rounded-full bg-amber-500 shadow-sm";
     } else {
       colorClass = "border-rose-500/30 bg-rose-50/50 dark:bg-rose-950/10";
-      badgeClass = "bg-rose-100 text-rose-800 dark:bg-rose-950/40 dark:text-rose-400";
+      badgeClass = "bg-rose-100 text-rose-800 dark:bg-rose-950/40 text-rose-400";
       dot.className = "w-2.5 h-2.5 rounded-full bg-rose-500 shadow-sm";
     }
 
