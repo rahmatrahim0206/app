@@ -44,10 +44,10 @@ var defaultWaTemplates = [
 ];
 
 function renderAll() {
-  renderDynamicLinks();
-  renderAgenda();
-  renderQuickNotes();
-  renderAuthenticatorKeys();
+  if (typeof renderDynamicLinks === 'function') renderDynamicLinks();
+  if (typeof renderAgenda === 'function') renderAgenda();
+  if (typeof renderQuickNotes === 'function') renderQuickNotes();
+  if (typeof renderAuthenticatorKeys === 'function') renderAuthenticatorKeys();
 }
 
 function applyConfigToDOM() {
@@ -85,7 +85,6 @@ function handlePinSubmit() {
     const storedHash = localStorage.getItem(CONFIG.STORAGE_PREFIX + 'master-pin');
 
     if (!storedHash) {
-      // Pengaturan awal PIN baru
       const pinHash = CryptoJS.SHA256(enteredPin).toString();
       localStorage.setItem(CONFIG.STORAGE_PREFIX + 'master-pin', pinHash);
       globalMasterPin = enteredPin;
@@ -93,7 +92,6 @@ function handlePinSubmit() {
       showToast("Master PIN berhasil didaftarkan!", "success");
       bootstrapApplication();
     } else {
-      // Validasi PIN yang dimasukkan
       const pinHash = CryptoJS.SHA256(enteredPin).toString();
       if (storedHash === pinHash) {
         globalMasterPin = enteredPin;
@@ -113,7 +111,6 @@ function handlePinSubmit() {
 
 // Inisialisasi Booting Utama Aplikasi Setelah Enkripsi Kunci Aman Terbuka
 function bootstrapApplication() {
-  // Tutup Overlay PIN
   const pinScreen = document.getElementById('master-pin-screen');
   if (pinScreen) pinScreen.classList.add('hidden');
 
@@ -123,7 +120,6 @@ function bootstrapApplication() {
     linksData = null;
   }
 
-  // PERBAIKAN BUG UTAMA: Memberikan penanganan awal instan agar renderDynamicLinks() tidak crash
   if (!linksData || linksData.length === 0) {
     linksData = typeof defaultSeedLinks !== 'undefined' ? [...defaultSeedLinks] : [];
     
@@ -156,12 +152,12 @@ function bootstrapApplication() {
   waTemplates = secureRead(CONFIG.STORAGE_PREFIX + 'wa-templates') || [...defaultWaTemplates];
 
   renderAll();
-  initCalendar();
-  populateWaSelect();
-  startTotpEngine();
-  startCutOffCountdown();
-  registerMainServiceWorker();
-  updateOnlineStatus(navigator.onLine);
+  if (typeof initCalendar === 'function') initCalendar();
+  if (typeof populateWaSelect === 'function') populateWaSelect();
+  if (typeof startTotpEngine === 'function') startTotpEngine();
+  if (typeof startCutOffCountdown === 'function') startCutOffCountdown();
+  if (typeof registerMainServiceWorker === 'function') registerMainServiceWorker();
+  if (typeof updateOnlineStatus === 'function') updateOnlineStatus(navigator.onLine);
 }
 
 // Inisialisasi Utama Saat Halaman Selesai Dimuat (Pemeriksaan PIN Awal)
@@ -180,17 +176,14 @@ window.addEventListener('DOMContentLoaded', () => {
     if (btnEl) btnEl.textContent = "Buka Kunci Sesi";
   }
 
-  // Pemasangan Event Listener Modal Konfirmasi
   const cancelBtn = document.getElementById('btn-confirm-cancel');
   const okBtn = document.getElementById('btn-confirm-ok');
   if (cancelBtn) cancelBtn.onclick = () => closeCustomConfirm(false);
   if (okBtn) okBtn.onclick = () => closeCustomConfirm(true);
 
-  // Penanganan Status Koneksi Runtime
   window.addEventListener('offline', () => { showToast('⚠️ Mode Luring (Offline) Aktif.', 'warning'); updateOnlineStatus(false); });
   window.addEventListener('online', () => { showToast('⚡ Portal terhubung kembali dengan jaringan.', 'success'); updateOnlineStatus(true); });
 
-  // Detektor Keaktifan Sesi (Auto-Lock)
   ['mousemove', 'keypress', 'click', 'scroll', 'touchstart'].forEach(e => {
     document.addEventListener(e, resetIdleTimer);
   });
@@ -200,4 +193,9 @@ window.addEventListener('DOMContentLoaded', () => {
   }, 60000);
 
   setInterval(updateClock, 1000);
+  
+  // Daftarkan selectCategory secara eksplisit ke window demi ketahanan
+  if (typeof selectCategory === 'function') {
+    window.selectCategory = selectCategory;
+  }
 });
