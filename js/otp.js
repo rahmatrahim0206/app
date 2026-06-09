@@ -238,12 +238,12 @@ function handleQrCodeResult(res) {
       if (successCount > 0) {
         saveAuthenticatorKeys();
         renderAuthenticatorKeys();
-        showToast(`Berhasil mengimpor ${successCount} akun dari Google Authenticator!`, 'success');
+        if (typeof showToast === 'function') showToast(`Berhasil mengimpor ${successCount} akun dari Google Authenticator!`, 'success');
       } else {
-        showToast("Semua akun migrasi ini sudah terdaftar sebelumnya di portal.", "warning");
+        if (typeof showToast === 'function') showToast("Semua akun migrasi ini sudah terdaftar sebelumnya di portal.", "warning");
       }
     } else {
-      showToast("Gagal menguraikan berkas migrasi Google Authenticator.", "error");
+      if (typeof showToast === 'function') showToast("Gagal menguraikan berkas migrasi Google Authenticator.", "error");
     }
     return;
   }
@@ -258,9 +258,9 @@ function handleQrCodeResult(res) {
     const cleaned = res.replace(/[\s\-=]+/g, '').toUpperCase();
     if (/^[A-Z2-7]+$/.test(cleaned)) {
       document.getElementById('auth-main-key').value = cleaned;
-      showToast("Kunci rahasia berhasil dimuat. Lengkapi nama layanan lalu simpan.", "warning");
+      if (typeof showToast === 'function') showToast("Kunci rahasia berhasil dimuat. Lengkapi nama layanan lalu simpan.", "warning");
     } else {
-      showToast("Hasil scan QR Code tidak mengandung format OTP valid.", "error");
+      if (typeof showToast === 'function') showToast("Hasil scan QR Code tidak mengandung format OTP valid.", "error");
     }
   }
 }
@@ -342,11 +342,13 @@ function save2FaKeyFromMain() {
   const rawKey = keyInput.value.replace(/[\s\-=]+/g, '').toUpperCase();
 
   if (!rawLabel || !rawKey) {
-    return showToast("Harap isi Nama Layanan & Kunci Rahasia!", "warning");
+    if (typeof showToast === 'function') showToast("Harap isi Nama Layanan & Kunci Rahasia!", "warning");
+    return;
   }
 
   if (!/^[A-Z2-7]+$/.test(rawKey)) {
-    return showToast("Kunci Rahasia tidak valid! Base32 hanya boleh berisi huruf A-Z dan angka 2-7.", "error");
+    if (typeof showToast === 'function') showToast("Kunci Rahasia tidak valid! Base32 hanya boleh berisi huruf A-Z dan angka 2-7.", "error");
+    return;
   }
 
   const newId = '2fa-' + Date.now();
@@ -359,7 +361,7 @@ function save2FaKeyFromMain() {
 
   saveAuthenticatorKeys();
   renderAuthenticatorKeys();
-  showToast(`Kunci OTP ${rawLabel} berhasil ditambahkan!`);
+  if (typeof showToast === 'function') showToast(`Kunci OTP ${rawLabel} berhasil ditambahkan!`);
   
   labelInput.value = '';
   userInput.value = '';
@@ -370,12 +372,14 @@ function delete2FaKey(id) {
   const keyObj = authenticatorKeys.find(k => k.id === id);
   const nameLabel = keyObj ? keyObj.label : "Kunci OTP";
   
-  showCustomConfirm("Hapus Kunci OTP?", `Akun OTP "${nameLabel}" Anda akan dihapus secara permanen.`, () => {
-    authenticatorKeys = authenticatorKeys.filter(k => k.id !== id);
-    saveAuthenticatorKeys();
-    renderAuthenticatorKeys();
-    showToast(`Kunci OTP "${nameLabel}" telah dihapus.`);
-  }, 'fa-trash-can');
+  if (typeof showCustomConfirm === 'function') {
+    showCustomConfirm("Hapus Kunci OTP?", `Akun OTP "${nameLabel}" Anda akan dihapus secara permanen.`, () => {
+      authenticatorKeys = authenticatorKeys.filter(k => k.id !== id);
+      saveAuthenticatorKeys();
+      renderAuthenticatorKeys();
+      if (typeof showToast === 'function') showToast(`Kunci OTP "${nameLabel}" telah dihapus.`);
+    }, 'fa-trash-can');
+  }
 }
 
 // TOTP clock ticking engine
@@ -410,7 +414,7 @@ function startTotpEngine() {
 // QR Scanner Cam control
 function toggleQrScanner() {
   if (typeof Html5Qrcode === 'undefined') {
-    showToast("Pustaka QR Scanner belum siap dimuat.", "error");
+    if (typeof showToast === 'function') showToast("Pustaka QR Scanner belum siap dimuat.", "error");
     return;
   }
   const wrp = document.getElementById('qr-reader-wrapper');
@@ -437,7 +441,7 @@ function toggleQrScanner() {
       () => {}
     ).catch(() => {
       toggleQrScanner();
-      showToast("Gagal mengakses kamera internal perangkat.", "error");
+      if (typeof showToast === 'function') showToast("Gagal mengakses kamera internal perangkat.", "error");
     });
   }
 }
@@ -449,14 +453,14 @@ function triggerQrFileInput() {
 
 function scanQrFile(e) {
   if (typeof Html5Qrcode === 'undefined') {
-    showToast("Pustaka QR Reader belum siap.", "error");
+    if (typeof showToast === 'function') showToast("Pustaka QR Reader belum siap.", "error");
     return;
   }
   if(e.target.files[0]) {
     new Html5Qrcode("qr-reader").scanFile(e.target.files[0], true).then(res => {
       handleQrCodeResult(res);
     }).catch(() => {
-      showToast("Gagal mendeteksi kode QR dalam gambar tersebut.", "error");
+      if (typeof showToast === 'function') showToast("Gagal mendeteksi kode QR dalam gambar tersebut.", "error");
     });
   }
 }
