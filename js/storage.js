@@ -48,7 +48,7 @@ function exportBackupData() {
   document.body.appendChild(a);
   a.click();
   a.remove();
-  showToast("Berkas pencadangan sistem berhasil diekspor!");
+  if (typeof showToast === 'function') showToast("Berkas pencadangan sistem berhasil diekspor!");
 }
 
 function triggerImportData() { 
@@ -73,35 +73,37 @@ function importBackupData(e) {
         secureSave(CONFIG.STORAGE_PREFIX + 'notes', notesData);
         saveAuthenticatorKeys();
         
-        renderAll();
-        initCalendar(); 
-        renderQuickNotes();
-        showToast("Seluruh data sistem berhasil dipulihkan!"); 
+        if (typeof renderAll === 'function') renderAll();
+        if (typeof initCalendar === 'function') initCalendar(); 
+        if (typeof renderQuickNotes === 'function') renderQuickNotes();
+        if (typeof showToast === 'function') showToast("Seluruh data sistem berhasil dipulihkan!"); 
       } catch (ex) {
-        showToast("Format berkas cadangan tidak dikenali atau rusak.", "error");
+        if (typeof showToast === 'function') showToast("Format berkas cadangan tidak dikenali atau rusak.", "error");
       } 
     };
     r.readAsText(e.target.files[0]); 
   } 
 }
 
-// Tombol Prosedur Reset Darurat (Menghapus Data Sensitif & Reload)
+// Prosedur Reset Darurat
 function triggerEmergencyReset() {
-  showCustomConfirm(
-    "Lakukan Atur Ulang Darurat?", 
-    "PERINGATAN SENSITIF: Tindakan ini akan menghapus seluruh data Anda secara permanen dari browser ini, termasuk Master PIN, kunci keamanan 2FA, catatan memo, agenda, serta tautan kustom. Sistem akan dimuat ulang ke pengaturan awal pabrik.", 
-    () => {
-      const keysToRemove = ['links', 'agendas', 'notes', 'auth-keys', 'wa-templates', 'master-pin'];
-      keysToRemove.forEach(key => {
-        localStorage.removeItem(CONFIG.STORAGE_PREFIX + key);
-      });
-      
-      updateClock();
-      showToast("Prosedur darurat dijalankan. Memuat ulang sistem...", "error");
-      setTimeout(() => {
-        window.location.reload();
-      }, 1500);
-    }, 
-    'fa-triangle-exclamation'
-  );
+  if (typeof showCustomConfirm === 'function') {
+    showCustomConfirm(
+      "Lakukan Atur Ulang Darurat?", 
+      "PERINGATAN SENSITIF: Tindakan ini akan menghapus seluruh data Anda secara permanen dari browser ini, termasuk Master PIN, kunci keamanan 2FA, catatan memo, agenda, serta tautan kustom. Sistem akan dimuat ulang ke pengaturan awal pabrik.", 
+      () => {
+        const keysToRemove = ['links', 'agendas', 'notes', 'auth-keys', 'wa-templates', 'master-pin'];
+        keysToRemove.forEach(key => {
+          localStorage.removeItem(CONFIG.STORAGE_PREFIX + key);
+        });
+        
+        if (typeof updateClock === 'function') updateClock();
+        if (typeof showToast === 'function') showToast("Prosedur darurat dijalankan. Memuat ulang sistem...", "error");
+        setTimeout(() => {
+          window.location.reload();
+        }, 1500);
+      }, 
+      'fa-triangle-exclamation'
+    );
+  }
 }
