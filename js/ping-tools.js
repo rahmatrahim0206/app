@@ -2,21 +2,18 @@
 // REAL-TIME AJAX LATENCY PING ENGINE FOR SATUAN PENDIDIKAN
 // ==========================================================
 
-// State internal pelacak auto-ping interval
 var autoPingIntervalId = null;
 var isAutoPingActive = true;
 
-// Daftar server tujuan pengujian latency kementerian (Datadik)
 var targetServerEndpoints = [
   { id: "srv-dapo", name: "Dapodik Pusat (Beranda Portal)", url: "https://dapo.kemendikdasmen.go.id" },
   { id: "srv-vervalpd", name: "Pusdatin VervalPD (Siswa)", url: "https://vervalpd.data.kemendikdasmen.go.id" },
   { id: "srv-vervalptk", name: "Pusdatin VervalPTK (Guru)", url: "https://vervalptk.data.kemendikdasmen.go.id" },
   { id: "srv-spdatadik", name: "SP Datadik Satuan Pendidikan", url: "https://sp.datadik.kemendikdasmen.go.id" },
   { id: "srv-infogtk", name: "Info GTK (Validasi SKTP Guru)", url: "https://info.gtk.kemendikdasmen.go.id" },
-  { id: "srv-erapor", name: "Server E-Rapor SMP (Sekolah)", url: "https://rapor.smpn3makassar.sch.id" } // Bersumber dinamis
+  { id: "srv-erapor", name: "Server E-Rapor SMP (Sekolah)", url: "https://rapor.smpn3makassar.sch.id" } 
 ];
 
-// Mengambil URL rapor dari konfigurasi dinamis aplikasi
 function updateDynamicRaporEndpoint() {
   const eraporSrv = targetServerEndpoints.find(s => s.id === "srv-erapor");
   if (eraporSrv && typeof CONFIG !== 'undefined' && CONFIG.RAPOR_URL) {
@@ -24,13 +21,11 @@ function updateDynamicRaporEndpoint() {
   }
 }
 
-// Inisialisasi awal saat panel Uji Latensi dibuka
 function initPingWorkspace() {
   updateDynamicRaporEndpoint();
   renderPingGridPlaceholder();
   pingAllEndpoints();
   
-  // Setel auto-ping jika status aktif
   if (isAutoPingActive) {
     startAutoPingInterval();
   } else {
@@ -38,7 +33,6 @@ function initPingWorkspace() {
   }
 }
 
-// Render awal struktur card server
 function renderPingGridPlaceholder() {
   const container = document.getElementById('ping-grid-container');
   if (!container) return;
@@ -62,14 +56,12 @@ function renderPingGridPlaceholder() {
   });
 }
 
-// Fungsi utama penakar latensi / ping asinkron
 async function measureLatencyToEndpoint(srv) {
   const startTime = performance.now();
   const controller = new AbortController();
-  const timeoutId = setTimeout(() => controller.abort(), 6000); // Batas aman RTO 6 detik
+  const timeoutId = setTimeout(() => controller.abort(), 6000); 
 
   try {
-    // Sisipkan parameter acak pencegah pembacaan cache lokal browser (Force reload network request)
     await fetch(`${srv.url}/favicon.ico?nocache=${Date.now() + Math.random()}`, {
       mode: 'no-cors',
       cache: 'no-store',
@@ -82,7 +74,6 @@ async function measureLatencyToEndpoint(srv) {
   } catch (err) {
     clearTimeout(timeoutId);
     
-    // Periksa status offline global browser
     if (!navigator.onLine) {
       updateServerCardStatus(srv.id, "offline", null);
       return;
@@ -91,10 +82,9 @@ async function measureLatencyToEndpoint(srv) {
     if (err.name === 'AbortError') {
       updateServerCardStatus(srv.id, "timeout", null);
     } else {
-      // Meskipun terjadi error CORS, waktu respons permintaan asinkron tetap mengindikasikan ketersediaan port
       const duration = Math.round(performance.now() - startTime);
       if (duration < 3000) {
-        updateServerCardStatus(srv.id, "success", duration); // Asumsikan port terbuka / terjangkau
+        updateServerCardStatus(srv.id, "success", duration); 
       } else {
         updateServerCardStatus(srv.id, "error", null);
       }
@@ -102,7 +92,6 @@ async function measureLatencyToEndpoint(srv) {
   }
 }
 
-// Pembaru Tampilan Status Server
 function updateServerCardStatus(id, state, latency) {
   const card = document.getElementById(`card-${id}`);
   const label = document.getElementById(`label-${id}`);
@@ -117,15 +106,15 @@ function updateServerCardStatus(id, state, latency) {
     if (latency < 150) {
       colorClass = "border-emerald-500/30 bg-emerald-50/50 dark:bg-emerald-950/10";
       badgeClass = "bg-emerald-100 text-emerald-800 dark:bg-emerald-950/40 dark:text-emerald-400";
-      dot.className = "w-2.5 h-2.5 rounded-full bg-emerald-500 shadow-sm shadow-emerald-500/50";
+      dot.className = "w-2.5 h-2.5 rounded-full bg-emerald-500 shadow-sm";
     } else if (latency >= 150 && latency <= 500) {
       colorClass = "border-amber-500/30 bg-amber-50/50 dark:bg-amber-950/10";
       badgeClass = "bg-amber-100 text-amber-800 dark:bg-amber-950/40 dark:text-amber-400";
-      dot.className = "w-2.5 h-2.5 rounded-full bg-amber-500 shadow-sm shadow-amber-500/50";
+      dot.className = "w-2.5 h-2.5 rounded-full bg-amber-500 shadow-sm";
     } else {
       colorClass = "border-rose-500/30 bg-rose-50/50 dark:bg-rose-950/10";
       badgeClass = "bg-rose-100 text-rose-800 dark:bg-rose-950/40 dark:text-rose-400";
-      dot.className = "w-2.5 h-2.5 rounded-full bg-rose-500 shadow-sm shadow-rose-500/50";
+      dot.className = "w-2.5 h-2.5 rounded-full bg-rose-500 shadow-sm";
     }
 
     card.className = `p-4 bg-white dark:bg-slate-800 border rounded-2xl flex items-center justify-between transition-all duration-300 ${colorClass}`;
@@ -149,10 +138,8 @@ function updateServerCardStatus(id, state, latency) {
   }
 }
 
-// Ping Massal Semua Endpoint
 function pingAllEndpoints() {
   targetServerEndpoints.forEach(srv => {
-    // Kembalikan status loading card sebelum ping dijalankan kembali
     const label = document.getElementById(`label-${srv.id}`);
     const dot = document.getElementById(`dot-${srv.id}`);
     if (label && dot) {
@@ -160,12 +147,10 @@ function pingAllEndpoints() {
       label.className = "text-[9px] font-bold px-2 py-0.5 rounded-full bg-slate-100 dark:bg-slate-900 text-slate-400 font-mono tracking-wider";
       dot.className = "w-2.5 h-2.5 rounded-full bg-slate-300 animate-ping";
     }
-    
     measureLatencyToEndpoint(srv);
   });
 }
 
-// Manajemen Auto-Ping 10 Detik
 function startAutoPingInterval() {
   stopAutoPingInterval();
   autoPingIntervalId = setInterval(pingAllEndpoints, 10000);
@@ -185,10 +170,10 @@ function stopAutoPingInterval() {
 function toggleAutoPing() {
   if (isAutoPingActive) {
     stopAutoPingInterval();
-    showToast("Monitoring otomatis dinonaktifkan.", "warning");
+    if (typeof showToast === 'function') showToast("Monitoring otomatis dinonaktifkan.", "warning");
   } else {
     startAutoPingInterval();
-    showToast("Monitoring otomatis diaktifkan kembali.", "success");
+    if (typeof showToast === 'function') showToast("Monitoring otomatis diaktifkan kembali.", "success");
   }
 }
 
@@ -199,11 +184,11 @@ function updateAutoPingUI(isActive) {
   if (!btn || !icon || !text) return;
 
   if (isActive) {
-    btn.className = "flex-1 sm:flex-none px-4 py-2.5 bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold rounded-xl transition flex items-center justify-center gap-1.5 shadow-md shadow-rose-500/10";
+    btn.className = "flex-1 sm:flex-none px-4 py-2.5 bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold rounded-xl transition flex items-center justify-center gap-1.5 shadow-md";
     icon.className = "fa-solid fa-stop";
     text.textContent = "Hentikan Auto";
   } else {
-    btn.className = "flex-1 sm:flex-none px-4 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-xl transition flex items-center justify-center gap-1.5 shadow-md shadow-emerald-500/10";
+    btn.className = "flex-1 sm:flex-none px-4 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-xl transition flex items-center justify-center gap-1.5 shadow-md";
     icon.className = "fa-solid fa-play animate-pulse";
     text.textContent = "Aktifkan Auto";
   }
