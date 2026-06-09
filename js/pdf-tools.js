@@ -84,9 +84,9 @@ function handleMergeFilesSelect(e) {
   });
   
   if (ignoredCount > 0) {
-    showToast(`⚠️ ${ignoredCount} file diabaikan karena bukan format PDF.`, "warning");
+    if (typeof showToast === 'function') showToast(`⚠️ ${ignoredCount} file diabaikan karena bukan format PDF.`, "warning");
   } else if (files.length > 0) {
-    showToast(`✅ Berhasil menambahkan ${files.length - ignoredCount} file PDF.`, "success");
+    if (typeof showToast === 'function') showToast(`✅ Berhasil menambahkan ${files.length - ignoredCount} file PDF.`, "success");
   }
   
   renderMergeFilesList();
@@ -116,11 +116,11 @@ function removeMergeFile(index) {
 
 async function processPdfMerge() {
   if (selectedMergeFiles.length < 2) {
-    showToast("Pilih minimal 2 berkas PDF untuk digabungkan!", "warning");
+    if (typeof showToast === 'function') showToast("Pilih minimal 2 berkas PDF untuk digabungkan!", "warning");
     return;
   }
   
-  showToast("Sedang menggabungkan berkas PDF...", "warning");
+  if (typeof showToast === 'function') showToast("Sedang menggabungkan berkas PDF...", "warning");
   try {
     const { PDFDocument } = PDFLib;
     const mergedPdf = await PDFDocument.create();
@@ -134,11 +134,11 @@ async function processPdfMerge() {
     
     const mergedPdfBytes = await mergedPdf.save();
     triggerBlobDownload(mergedPdfBytes, "dapohub_tergabung.pdf", "application/pdf");
-    showToast("Dokumen PDF berhasil digabungkan!", "success");
+    if (typeof showToast === 'function') showToast("Dokumen PDF berhasil digabungkan!", "success");
     resetPdfWorkspaces();
   } catch (err) {
     console.error("Gagal melakukan penggabungan PDF:", err);
-    showToast("Terjadi kegagalan menggabungkan berkas PDF.", "error");
+    if (typeof showToast === 'function') showToast("Terjadi kegagalan menggabungkan berkas PDF.", "error");
   }
 }
 
@@ -152,26 +152,26 @@ function handleSplitFileSelect(e) {
     selectedSplitFile = file;
     document.getElementById('pdf-split-filename').innerHTML = `<i class="fa-solid fa-file-pdf text-rose-500 mr-1.5"></i>${file.name}`;
     document.getElementById('pdf-split-name').value = file.name.replace(".pdf", "_bagian.pdf");
-    showToast("File PDF berhasil dimuat!", "success");
+    if (typeof showToast === 'function') showToast("File PDF berhasil dimuat!", "success");
   } else {
-    showToast("Harap pilih berkas dengan format PDF!", "error");
+    if (typeof showToast === 'function') showToast("Harap pilih berkas dengan format PDF!", "error");
     e.target.value = "";
   }
 }
 
 async function processPdfSplit() {
   if (!selectedSplitFile) {
-    showToast("Harap pilih berkas PDF terlebih dahulu!", "warning");
+    if (typeof showToast === 'function') showToast("Harap pilih berkas PDF terlebih dahulu!", "warning");
     return;
   }
   
   const pageRangeInput = document.getElementById('pdf-split-pages').value.trim();
   if (!pageRangeInput) {
-    showToast("Harap isi halaman yang ingin diekstrak!", "warning");
+    if (typeof showToast === 'function') showToast("Harap isi halaman yang ingin diekstrak!", "warning");
     return;
   }
   
-  showToast("Mengekstrak halaman...", "warning");
+  if (typeof showToast === 'function') showToast("Mengekstrak halaman...", "warning");
   try {
     const { PDFDocument } = PDFLib;
     const arrayBuffer = await selectedSplitFile.arrayBuffer();
@@ -182,7 +182,7 @@ async function processPdfSplit() {
     const pagesToExtract = parsePageRanges(pageRangeInput, totalPages);
     
     if (pagesToExtract.length === 0) {
-      showToast("Rentang halaman tidak valid atau melebihi total halaman!", "error");
+      if (typeof showToast === 'function') showToast("Rentang halaman tidak valid atau melebihi total halaman!", "error");
       return;
     }
     
@@ -194,11 +194,11 @@ async function processPdfSplit() {
     if (!outName.endsWith(".pdf")) outName += ".pdf";
     
     triggerBlobDownload(splitBytes, outName, "application/pdf");
-    showToast("Halaman berhasil diekstrak!", "success");
+    if (typeof showToast === 'function') showToast("Halaman berhasil diekstrak!", "success");
     resetPdfWorkspaces();
   } catch (err) {
     console.error("Gagal memisahkan PDF:", err);
-    showToast("Gagal memisahkan berkas PDF.", "error");
+    if (typeof showToast === 'function') showToast("Gagal memisahkan berkas PDF.", "error");
   }
 }
 
@@ -243,7 +243,7 @@ function handleImageSelect(e) {
   });
   
   if (ignoredCount > 0) {
-    showToast(`⚠️ ${ignoredCount} file diabaikan (Hanya mendukung gambar JPG/PNG).`, "warning");
+    if (typeof showToast === 'function') showToast(`⚠️ ${ignoredCount} file diabaikan (Hanya mendukung gambar JPG/PNG).`, "warning");
   }
   
   renderImagePreviews();
@@ -277,11 +277,11 @@ function removeImgFile(index) {
 
 async function processImageToPdf() {
   if (selectedImgFiles.length === 0) {
-    showToast("Pilih minimal satu gambar!", "warning");
+    if (typeof showToast === 'function') showToast("Pilih minimal satu gambar!", "warning");
     return;
   }
   
-  showToast("Mengonversi gambar ke PDF...", "warning");
+  if (typeof showToast === 'function') showToast("Mengonversi gambar ke PDF...", "warning");
   try {
     const { PDFDocument } = PDFLib;
     const pdfDoc = await PDFDocument.create();
@@ -307,11 +307,11 @@ async function processImageToPdf() {
     
     const pdfBytes = await pdfDoc.save();
     triggerBlobDownload(pdfBytes, "dapohub_gambar.pdf", "application/pdf");
-    showToast("Gambar berhasil di-compile ke PDF!", "success");
+    if (typeof showToast === 'function') showToast("Gambar berhasil di-compile ke PDF!", "success");
     resetPdfWorkspaces();
   } catch (err) {
     console.error("Gagal mengubah gambar ke PDF:", err);
-    showToast("Konversi gambar ke PDF gagal.", "error");
+    if (typeof showToast === 'function') showToast("Konversi gambar ke PDF gagal.", "error");
   }
 }
 
@@ -319,11 +319,11 @@ async function processImageToPdf() {
 async function processTextToPdf() {
   const textContent = document.getElementById('pdf-text-input-body').value.trim();
   if (!textContent) {
-    showToast("Harap ketik atau tempelkan teks terlebih dahulu!", "warning");
+    if (typeof showToast === 'function') showToast("Harap ketik atau tempelkan teks terlebih dahulu!", "warning");
     return;
   }
   
-  showToast("Membuat PDF dari teks...", "warning");
+  if (typeof showToast === 'function') showToast("Membuat PDF dari teks...", "warning");
   try {
     const { PDFDocument, StandardFonts, rgb } = PDFLib;
     const pdfDoc = await PDFDocument.create();
@@ -378,15 +378,15 @@ async function processTextToPdf() {
     if (!filename.endsWith(".pdf")) filename += ".pdf";
     
     triggerBlobDownload(pdfBytes, filename, "application/pdf");
-    showToast("PDF dari naskah teks berhasil diunduh!", "success");
+    if (typeof showToast === 'function') showToast("PDF dari naskah teks berhasil diunduh!", "success");
     resetPdfWorkspaces();
   } catch (err) {
     console.error("Gagal mengonversi teks ke PDF:", err);
-    showToast("Gagal menghasilkan PDF dari naskah.", "error");
+    if (typeof showToast === 'function') showToast("Gagal menghasilkan PDF dari naskah.", "error");
   }
 }
 
-// --- LOGIKA UTAMA: PDF KE WORD (PDF TO WORD) DENGAN ALGORITMA REKONSTRUKSI 2D ---
+// --- LOGIKA PDF KE WORD (PDF TO WORD TEXT EXTRACTION) ---
 async function handlePdfToWordSelect(e) {
   const file = e.target.files[0];
   if (!file) return;
@@ -404,221 +404,70 @@ async function handlePdfToWordSelect(e) {
       const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
       const page = await pdf.getPage(1);
       const textContent = await page.getTextContent();
+      const firstPageText = textContent.items.map(item => item.str).join(' ');
       
-      // Ambil sedikit potongan teks di awal sebagai visual preview instan
-      let previewText = textContent.items.slice(0, 15).map(item => item.str).join(' ');
       if (previewEl) {
-        previewEl.textContent = previewText.trim() ? previewText.substring(0, 180) + "..." : "Tidak ada teks terbaca di halaman pertama.";
+        previewEl.textContent = firstPageText.substring(0, 150) + (firstPageText.length > 150 ? "..." : "");
       }
     } catch (err) {
       console.error("Gagal membaca preview PDF:", err);
       if (previewEl) previewEl.textContent = "Gagal memuat teks preview PDF.";
     }
   } else {
-    showToast("Harap pilih berkas dengan format PDF!", "error");
+    if (typeof showToast === 'function') showToast("Harap pilih berkas dengan format PDF!", "error");
     e.target.value = "";
   }
 }
 
 async function processPdfToWord() {
   if (!selectedWordFile) {
-    showToast("Pilih berkas PDF terlebih dahulu!", "warning");
+    if (typeof showToast === 'function') showToast("Pilih berkas PDF terlebih dahulu!", "warning");
     return;
   }
   
-  showToast("Menganalisis tata letak & struktur paragraf...", "warning");
+  if (typeof showToast === 'function') showToast("Membaca seluruh teks PDF secara luring...", "warning");
   try {
     const arrayBuffer = await selectedWordFile.arrayBuffer();
     const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
-    let htmlPagesContent = "";
+    let fullTextResult = "";
     
-    for (let pNum = 1; pNum <= pdf.numPages; pNum++) {
-      const page = await pdf.getPage(pNum);
+    // Algoritma Clustered Reading: Menyatukan koordinat Y secara presisi untuk memelihara paragraf Word asli
+    for (let i = 1; i <= pdf.numPages; i++) {
+      const page = await pdf.getPage(i);
       const textContent = await page.getTextContent();
-      const items = textContent.items.filter(item => item.str && item.str.trim() !== '');
       
-      if (items.length === 0) {
-        htmlPagesContent += `
-          <!-- Halaman ${pNum} -->
-          <p class="MsoNormal" style="color: #9ca3af; font-style: italic; text-align: center;">Tidak ada teks terdeteksi di halaman ${pNum} (Halaman Gambar/Kosong).</p>
-        `;
-        if (pNum < pdf.numPages) {
-          htmlPagesContent += `<br clear="all" style="page-break-before: always; mso-break-type: section-break;" />`;
-        }
-        continue;
-      }
-
-      // Tahap 1: Dynamic Row Clustering berdasarkan Baseline Y-coordinate
-      // PDF.js seringkali membaca teks secara acak. Kita urutkan Y secara vertikal menurun (atas ke bawah).
-      items.sort((a, b) => b.transform[5] - a.transform[5]);
-      
-      let rows = [];
-      let currentRow = [];
-      let currentY = items[0].transform[5];
-      
-      for (let item of items) {
-        let y = item.transform[5];
-        let fontSize = Math.abs(item.transform[3]); 
-        
-        // Jarak batas toleransi baseline dinamis disesuaikan dengan 60% ukuran huruf aktif
-        let threshold = fontSize * 0.6;
-        if (threshold < 4.5) threshold = 4.5;
-        
-        if (Math.abs(currentY - y) <= threshold) {
-          currentRow.push(item);
-        } else {
-          rows.push({
-            y: currentY,
-            fontSize: Math.abs(currentRow[0].transform[3]),
-            items: currentRow
-          });
-          currentRow = [item];
-          currentY = y;
-        }
-      }
-      if (currentRow.length > 0) {
-        rows.push({
-          y: currentY,
-          fontSize: Math.abs(currentRow[0].transform[3]),
-          items: currentRow
-        });
-      }
-
-      // Tahap 2: Urutkan setiap baris secara horizontal (X-coordinate) dan rekatkan suku kata
-      let pageLines = [];
-      for (let row of rows) {
-        row.items.sort((a, b) => a.transform[4] - b.transform[4]);
-        
-        let rowText = "";
-        for (let i = 0; i < row.items.length; i++) {
-          let item = row.items[i];
-          let str = item.str;
-          
-          if (i === 0) {
-            rowText += str;
-          } else {
-            let prevItem = row.items[i - 1];
-            // Hitung lebar fisik celah horizontal antara item sebelumnya dan sekarang
-            let prevRightEdge = prevItem.transform[4] + prevItem.width;
-            let currentLeftEdge = item.transform[4];
-            let gap = currentLeftEdge - prevRightEdge;
-            
-            // Rekatkan tanpa spasi jika celahnya sempit (suku kata/huruf terpecah)
-            if (gap < 2.2) {
-              rowText += str;
-            } else {
-              // Tambahkan spasi normal jika ada jeda kata
-              if (rowText.endsWith(' ') || str.startsWith(' ')) {
-                rowText += str;
-              } else {
-                rowText += ' ' + str;
-              }
-            }
-          }
-        }
-        
-        rowText = rowText.replace(/\s+/g, ' ');
-        if (rowText.trim().length > 0) {
-          pageLines.push({
-            text: rowText.trim(),
-            y: row.y,
-            fontSize: row.fontSize
-          });
-        }
-      }
-
-      // Tahap 3: Gabungkan baris-baris terfragmentasi menjadi satu aliran naskah paragraf mengalir
-      let paragraphs = [];
-      let currentPara = "";
-      
-      for (let i = 0; i < pageLines.length; i++) {
-        let line = pageLines[i];
-        let text = line.text;
-        
-        if (currentPara === "") {
-          currentPara = text;
-        } else {
-          let prevLine = pageLines[i - 1];
-          let yGap = Math.abs(prevLine.y - line.y);
-          let expectedHeight = prevLine.fontSize * 1.8; // Standar line spacing PDF
-          
-          let isNewParagraph = false;
-          // Buat paragraf baru jika jarak vertikal sangat jauh, atau baris sebelumnya diakhiri titik/tanda baca akhir
-          if (yGap > expectedHeight * 1.35) {
-            isNewParagraph = true;
-          } else if (/[.:?!"']$/.test(prevLine.text) && yGap > expectedHeight * 1.05) {
-            isNewParagraph = true;
-          }
-          
-          if (isNewParagraph) {
-            paragraphs.push({
-              text: currentPara,
-              fontSize: prevLine.fontSize
-            });
-            currentPara = text;
-          } else {
-            // Sambung baris aktif dengan perlakuan khusus kata hubung di ujung baris (-)
-            if (currentPara.endsWith('-')) {
-              currentPara = currentPara.slice(0, -1) + text;
-            } else {
-              currentPara += " " + text;
-            }
-          }
-        }
-      }
-      if (currentPara !== "") {
-        let lastLine = pageLines[pageLines.length - 1];
-        paragraphs.push({
-          text: currentPara,
-          fontSize: lastLine ? lastLine.fontSize : 11
-        });
-      }
-
-      // Tahap 4: Susun kode HTML Word Mso-Style yang rapi dan elegan
-      let pageHtml = "";
-      paragraphs.forEach(para => {
-        let text = para.text.replace(/\s+/g, ' ').trim();
-        if (text.length === 0) return;
-        
-        // Deteksi Judul / Kop Formal (Ciri: Ukuran font besar, kapital penuh, atau baris singkat)
-        let isHeading = false;
-        if (para.fontSize > 13.5) {
-          isHeading = true;
-        } else if (text.length < 90 && (text === text.toUpperCase() || text.startsWith("BAB ") || text.startsWith("KEMENTERIAN") || text.startsWith("KEPUTUSAN") || text.startsWith("PEMERINTAH"))) {
-          isHeading = true;
-        }
-        
-        if (isHeading) {
-          pageHtml += `<p class="MsoHeading" style="margin-top: 14pt; margin-bottom: 6pt; font-family: 'Segoe UI', Arial, sans-serif; font-size: ${para.fontSize > 12 ? para.fontSize : 12.5}pt; font-weight: bold; text-align: center; color: #111827; line-height: 1.25;">${text}</p>`;
-        } else {
-          // Format Paragraf Normal yang Justify dengan indentasi khas naskah resmi Microsoft Word
-          pageHtml += `<p class="MsoNormal" style="margin-top: 0in; margin-bottom: 8pt; text-align: justify; font-family: 'Calibri', Arial, sans-serif; font-size: 11pt; line-height: 1.25; text-indent: 0.35in; color: #1f2937;">${text}</p>`;
-        }
+      // Mengelompokkan item teks berdasarkan koordinat Y (Baselines)
+      const lineMap = {};
+      textContent.items.forEach(item => {
+        // y-coordinate adalah item.transform[5]
+        const y = Math.round(item.transform[5] * 2) / 2; // toleransi setengah poin koordinat
+        if (!lineMap[y]) lineMap[y] = [];
+        lineMap[y].push(item);
       });
       
-      htmlPagesContent += `
-        <!-- Halaman ${pNum} -->
-        <div style="margin-bottom: 24pt;">
-          ${pageHtml}
-        </div>
-      `;
+      // Mengurutkan baselines Y dari atas ke bawah (Y descending) dan urutkan teks horizontal (X ascending)
+      const sortedBaselines = Object.keys(lineMap).map(Number).sort((a, b) => b - a);
+      let pageText = "";
       
-      // Sisipkan Pembagi Halaman Fisik Asli MS Word (Page Break)
-      if (pNum < pdf.numPages) {
-        htmlPagesContent += `<br clear="all" style="page-break-before: always; mso-break-type: section-break;" />`;
-      }
+      sortedBaselines.forEach(y => {
+        const lineItems = lineMap[y].sort((a, b) => a.transform[4] - b.transform[4]);
+        const lineStr = lineItems.map(item => item.str).join(' ');
+        pageText += lineStr + "\n";
+      });
+      
+      fullTextResult += `[HALAMAN ${i}]\n\n${pageText}\n\n`;
     }
     
-    if (!htmlPagesContent.replace(/<[^>]*>/g, '').trim()) {
-      showToast("Gagal mendeteksi teks. Berkas PDF ini mungkin hasil scan (berbentuk gambar).", "warning");
+    if (!fullTextResult.trim()) {
+      if (typeof showToast === 'function') showToast("Gagal mendeteksi teks. Berkas PDF ini mungkin hasil scan (berbentuk gambar).", "warning");
       return;
     }
-
-    // Konstruksi templat dokumen standar Microsoft Word dengan integrasi @page dan Mso Stylesheet
+    
+    // Integrasi XML asli Microsoft Word Office Standard HTML Wrapper dengan dynamic footer page numbers
     const blobHtml = `
       <html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'>
       <head>
-        <meta charset="utf-8">
+        <title>Ekstraksi Dokumen DAPO-HUB</title>
         <!--[if gte mso 9]>
         <xml>
           <w:WordDocument>
@@ -629,67 +478,51 @@ async function processPdfToWord() {
         </xml>
         <![endif]-->
         <style>
-          @page Section1 {
-            size: 595.3pt 841.9pt; /* Ukuran Kertas A4 Resmi */
-            margin: 72.0pt 72.0pt 72.0pt 72.0pt; /* Margin Standar 1 Inci (Sekitar 2.54cm) */
-            mso-header-margin: 36.0pt;
-            mso-footer-margin: 36.0pt;
-            mso-header: h1;
+          @page {
+            size: 21cm 29.7cm; /* Ukuran A4 */
+            margin: 2.5cm 2.5cm 2.5cm 2.5cm;
+            mso-header-margin: 1.27cm;
+            mso-footer-margin: 1.27cm;
             mso-footer: f1;
-            mso-paper-source: 0;
-          }
-          div.Section1 {
-            page: Section1;
-          }
-          /* Pengaturan global MS Word Class Stylesheet */
-          p.MsoNormal, li.MsoNormal, div.MsoNormal {
-            mso-style-parent: "";
-            margin: 0in;
-            margin-bottom: 8pt;
-            mso-pagination: widow-orphan;
-            font-size: 11.0pt;
-            font-family: "Calibri", sans-serif;
-            mso-ascii-font-family: Calibri;
-            mso-hansi-font-family: Calibri;
-            mso-bidi-font-family: "Times New Roman";
-            line-height: 1.15;
-          }
-          p.MsoHeading {
-            margin-top: 14.0pt;
-            margin-bottom: 6.0pt;
-            mso-pagination: widow-orphan;
-            page-break-after: avoid;
-            font-size: 12.0pt;
-            font-family: "Segoe UI", sans-serif;
-            font-weight: bold;
-          }
-          p.MsoHeader, p.MsoFooter {
-            margin: 0in;
-            mso-pagination: widow-orphan;
-            font-size: 8.5pt;
-            font-family: "Segoe UI", sans-serif;
           }
           body {
-            font-family: 'Calibri', 'Arial', sans-serif;
+            font-family: 'Segoe UI', Calibri, Arial, sans-serif;
             font-size: 11pt;
-            color: #1f2937;
-            background-color: #ffffff;
+            line-height: 1.5;
+            color: #111111;
+          }
+          p.MsoNormal {
+            margin: 0in 0in 8pt 0in;
+            text-align: justify;
+          }
+          div.MsoFooter {
+            mso-element: footer;
+            id: f1;
+          }
+          p.MsoFooterText {
+            margin: 0in;
+            text-align: center;
+            font-size: 10pt;
+            color: #666666;
+            border-top: 1px solid #e0e0e0;
+            padding-top: 5px;
+          }
+          .page-break {
+            page-break-before: always;
+            mso-special-character: page-break;
           }
         </style>
       </head>
       <body>
-        <!-- Elemen Header & Footer Asli MS Word (Akan disembunyikan dalam halaman dan masuk ke sistem Footer asli) -->
-        <div style="mso-element:header" id="h1">
-          <p class="MsoHeader" style="text-align: right; border-bottom: 0.5pt solid #e5e7eb; padding-bottom: 3px; color: #9ca3af; text-transform: uppercase; font-weight: bold;">Dokumen Hasil Ekstraksi Dapodik</p>
-        </div>
-        <div style="mso-element:footer" id="f1">
-          <p class="MsoFooter" style="text-align: center; color: #9ca3af; border-top: 0.5pt solid #e5e7eb; padding-top: 3px;">
-            Halaman <span style="mso-field-code:'PAGE'"></span> dari <span style="mso-field-code:'NUMPAGES'"></span>
-          </p>
+        <div style="white-space: pre-line;">
+          ${fullTextResult.replace(/\[HALAMAN \d+\]/g, '<div class="page-break"></div>')}
         </div>
         
-        <div class="Section1">
-          ${htmlPagesContent}
+        <!-- Integrasi XML Penomoran Kertas Dinamis Microsoft Word Footer -->
+        <div style="mso-element:footer" id="f1">
+          <p class="MsoFooterText" align="center">
+            Halaman <span style="mso-field-code: PAGE"></span> dari <span style="mso-field-code: NUMPAGES"></span>
+          </p>
         </div>
       </body>
       </html>
@@ -698,11 +531,11 @@ async function processPdfToWord() {
     const docBytes = new TextEncoder().encode(blobHtml);
     const outName = selectedWordFile.name.replace(".pdf", "_ekstrak.doc");
     triggerBlobDownload(docBytes, outName, "application/msword");
-    showToast("Berkas Word (.doc) berhasil diunduh!", "success");
+    if (typeof showToast === 'function') showToast("Berkas Word (.doc) berhasil diunduh!", "success");
     resetPdfWorkspaces();
   } catch (err) {
     console.error("Gagal mengubah PDF ke Word:", err);
-    showToast("Proses konversi PDF ke Word gagal.", "error");
+    if (typeof showToast === 'function') showToast("Proses konversi PDF ke Word gagal.", "error");
   }
 }
 
