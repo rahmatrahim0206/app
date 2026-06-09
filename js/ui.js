@@ -67,14 +67,14 @@ window.renderDynamicLinks = function() {
     'keuangan': { title: 'Anggaran & Keuangan Sekolah', icon: 'fa-wallet', color: 'text-amber-500' },
     'guru': { title: 'Layanan Pendidik (GTK)', icon: 'fa-chalkboard-user', color: 'text-indigo-500' },
     'kepegawaian': { title: 'Layanan Kepegawaian (ASN)', icon: 'fa-id-card-clip', color: 'text-sky-500' },
-    'ujian': { title: 'Asesmen Nasional (ANBK)', icon: 'fa-laptop-code', color: 'text-rose-500' },
+    'portal_tka': { title: 'Asesmen Nasional & Ujian (Portal TKA/ANBK)', icon: 'fa-laptop-code', color: 'text-rose-500' },
     'daerah': { title: 'Portal Dinas & Daerah', icon: 'fa-city', color: 'text-purple-500' }
   };
 
   const searchInput = document.getElementById('search-input');
   const q = searchInput ? searchInput.value.toLowerCase().trim() : '';
   let total = 0;
-  let counts = { semua: 0, utama: 0, verval: 0, keuangan: 0, guru: 0, kepegawaian: 0, pdf_tools: 5, ping_tools: 6, speedtest: 1, "2fa_auth": 0, ujian: 0, daerah: 0 };
+  let counts = { semua: 0, utama: 0, verval: 0, keuangan: 0, guru: 0, kepegawaian: 0, pdf_tools: 5, ping_tools: 6, speedtest: 1, "2fa_auth": 0, portal_tka: 0, daerah: 0 };
 
   if (!linksData || !Array.isArray(linksData)) {
     linksData = typeof defaultSeedLinks !== 'undefined' ? [...defaultSeedLinks] : [];
@@ -99,6 +99,7 @@ window.renderDynamicLinks = function() {
     const filtered = linksData.filter(l => (activeCategory === 'semua' || activeCategory === cat) && l.category === cat && (l.title.toLowerCase().includes(q) || l.desc.toLowerCase().includes(q)));
     if (filtered.length > 0) {
       const sec = document.createElement('div');
+      sec.className = 'space-y-4 mb-6 animate-fade-in';
       sec.innerHTML = `<h3 class="text-xs font-black tracking-wider uppercase text-slate-400 mb-4 flex items-center gap-2"><i class="fa-solid ${catMap[cat].icon} ${catMap[cat].color}"></i> ${catMap[cat].title}</h3>`;
       
       const grid = document.createElement('div');
@@ -117,7 +118,7 @@ window.renderDynamicLinks = function() {
             <div class="p-2.5 sm:p-3 rounded-xl bg-blue-50 dark:bg-blue-950/40 text-blue-600 group-hover:scale-110 transition flex-shrink-0"><i class="fa-solid ${l.icon || 'fa-globe'} text-lg sm:text-xl"></i></div>
             <div class="flex-1 pr-4 min-w-0">
               <h4 class="font-extrabold text-slate-900 dark:text-white text-xs sm:text-sm md:text-base group-hover:text-blue-600 flex items-center gap-1 truncate font-space">${l.title} <i class="fa-solid fa-arrow-up-right-from-square text-[9px] opacity-0 group-hover:opacity-100 transition"></i></h4>
-              <p class="text-[10px] sm:text-xs text-slate-500 mt-1.5 leading-relaxed break-words">${l.desc}</p>
+              <p class="text-[10px] sm:text-xs text-slate-505 mt-1.5 leading-relaxed break-words">${l.desc}</p>
             </div>
           </div>`;
         grid.appendChild(a);
@@ -339,7 +340,7 @@ function updateCountdownTask() {
   if(btn && p) btn.onclick = () => toggleTaskDone(p.id);
 }
 
-// --- TAB ASISTEN: KALENDER KERJA ---
+// --- TAB ASISTEN: KALENDER KERJA DENGAN MEMO AKTIF ---
 window.initCalendar = function() {
   const names = ["Januari","Februari","Maret","April","Mei","Juni","Juli","Agustus","September","Oktober","November","Desember"];
   const y = currentDateObj.getFullYear();
@@ -361,17 +362,53 @@ window.initCalendar = function() {
   
   for(let d=1; d<=td; d++) {
     const isT = today.getDate()===d && today.getMonth()===m && today.getFullYear()===y;
-    const itemClass = isT ? 'bg-blue-600 text-white font-bold shadow-sm' : 'hover:bg-blue-50 dark:hover:bg-slate-700';
+    const dateStr = `${y}-${String(m+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+    const hasNote = notesData.some(n => n.date === dateStr);
+    
+    let itemClass = 'hover:bg-blue-50 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300';
+    if (isT) {
+      itemClass = 'bg-blue-600 text-white font-bold shadow-sm';
+    } else if (hasNote) {
+      itemClass = 'bg-amber-100 dark:bg-amber-950/40 text-amber-700 dark:text-amber-400 font-bold';
+    }
+    
+    const indicatorDot = (hasNote && !isT) ? `<span class="absolute bottom-0.5 left-1/2 -translate-x-1/2 block w-1 h-1 rounded-full bg-amber-500"></span>` : '';
     
     htmlBuffer.push(`
-      <div onclick="document.getElementById('calendar-event-display').innerHTML='<p class=\\'text-[10px] font-bold text-blue-600 dark:text-blue-400\\'><i class=\\'fa-solid fa-circle-info\\'></i> Hari Penting: ${d} ${names[m]} ${y}</p>'" 
-           class="p-1 rounded cursor-pointer transition-colors duration-150 ${itemClass}">
+      <div onclick="showDateMemos('${d}', ${m}, ${y})" 
+           class="p-1 rounded cursor-pointer transition-colors duration-150 relative ${itemClass}">
         ${d}
+        ${indicatorDot}
       </div>
     `);
   }
   
   c.innerHTML = htmlBuffer.join('');
+}
+
+window.showDateMemos = function(day, month, year) {
+  const names = ["Januari","Februari","Maret","April","Mei","Juni","Juli","Agustus","September","Oktober","November","Desember"];
+  const dateStr = `${year}-${String(month+1).padStart(2,'0')}-${String(day).padStart(2,'0')}`;
+  const filteredMemos = notesData.filter(n => n.date === dateStr);
+  const displayEl = document.getElementById('calendar-event-display');
+  
+  if (!displayEl) return;
+  
+  if (filteredMemos.length === 0) {
+    displayEl.innerHTML = `<p class="text-[10px] text-slate-400 italic"><i class="fa-solid fa-info-circle text-blue-400"></i> Tidak ada memo pada tanggal ${day} ${names[month]} ${year}.</p>`;
+  } else {
+    let listHtml = `<div class="space-y-2"><p class="text-[10px] text-slate-500 font-black uppercase tracking-wide">📅 Memo ${day} ${names[month]}:</p>`;
+    filteredMemos.forEach(n => {
+      listHtml += `
+        <div class="p-2 bg-amber-50/50 dark:bg-amber-950/20 border border-amber-100 dark:border-amber-900/30 rounded-xl">
+          <h5 class="text-[10px] font-black text-amber-800 dark:text-amber-400">${n.title}</h5>
+          <p class="text-[9px] text-slate-500 dark:text-slate-400 mt-0.5 leading-relaxed">${n.body}</p>
+        </div>
+      `;
+    });
+    listHtml += `</div>`;
+    displayEl.innerHTML = listHtml;
+  }
 }
 
 window.prevMonth = function() { currentDateObj.setMonth(currentDateObj.getMonth()-1); initCalendar(); }
@@ -386,14 +423,16 @@ window.renderQuickNotes = function() {
   
   notesData.forEach(n => {
     const itemDiv = document.createElement('div');
-    itemDiv.className = 'p-2 border border-slate-150 dark:border-slate-700/60 rounded-xl bg-slate-50/50 dark:bg-slate-900/30 relative group font-sans';
+    itemDiv.className = 'p-3 border border-slate-150 dark:border-slate-700/60 rounded-xl bg-slate-50/50 dark:bg-slate-900/30 relative group font-sans';
+    
+    const dateFormatted = n.date ? n.date.split('-').reverse().join('/') : "-";
     
     const h5 = document.createElement('h5');
-    h5.className = 'text-[10px] font-bold text-slate-800 dark:text-white';
-    h5.textContent = n.title;
+    h5.className = 'text-[10px] font-bold text-slate-800 dark:text-white flex items-center justify-between pr-4';
+    h5.innerHTML = `<span>${n.title}</span> <span class="text-[8px] bg-slate-100 dark:bg-slate-800 px-1 py-0.5 rounded text-slate-500">${dateFormatted}</span>`;
     
     const p = document.createElement('p');
-    p.className = 'text-[9px] text-slate-500 leading-relaxed line-clamp-2 mt-0.5';
+    p.className = 'text-[9px] text-slate-500 dark:text-slate-400 leading-relaxed line-clamp-3 mt-1';
     p.textContent = n.body;
     
     const btn = document.createElement('button');
@@ -403,6 +442,7 @@ window.renderQuickNotes = function() {
       notesData = notesData.filter(x => x.id !== n.id);
       if (typeof secureSave === 'function') secureSave(CONFIG.STORAGE_PREFIX + 'notes', notesData);
       renderQuickNotes();
+      initCalendar();
     };
     
     itemDiv.appendChild(h5);
@@ -417,17 +457,24 @@ window.renderQuickNotes = function() {
 
 window.addQuickNote = function() {
   const tEl = document.getElementById('note-title-input');
+  const dEl = document.getElementById('note-date-input');
   const bEl = document.getElementById('note-body-input');
   const t = tEl ? tEl.value.trim() : '';
+  const d = dEl ? dEl.value : '';
   const b = bEl ? bEl.value.trim() : '';
-  if(t && b) {
-    notesData.push({ id: 'n-'+Date.now(), title: t, body: b });
+  
+  if(t && d && b) {
+    notesData.push({ id: 'n-'+Date.now(), title: t, date: d, body: b });
     if (typeof secureSave === 'function') secureSave(CONFIG.STORAGE_PREFIX + 'notes', notesData);
     renderQuickNotes();
+    initCalendar();
     closeAddMemoModal();
     if(tEl) tEl.value = '';
+    if(dEl) dEl.value = '';
     if(bEl) bEl.value = '';
     showToast("Memo catatan berhasil disimpan!");
+  } else {
+    showToast("Mohon lengkapi seluruh isian memo!", "warning");
   }
 }
 
@@ -489,7 +536,7 @@ window.renderTemplatesList = function() {
   const buffer = [];
   waTemplates.forEach(t => {
     buffer.push(`
-      <div class="p-3 border dark:border-slate-700 bg-slate-50 dark:bg-slate-900/60 rounded-xl flex justify-between items-start gap-2">
+      <div class="p-3 border dark:border-slate-700 bg-slate-50 dark:bg-slate-900/60 rounded-xl flex justify-between items-start gap-2 animate-fade-in">
         <div class="truncate flex-1">
           <h5 class="text-xs font-bold truncate text-slate-800 dark:text-white">${t.name}</h5>
           <p class="text-[10px] text-slate-500 truncate mt-0.5">${t.text}</p>
@@ -658,12 +705,12 @@ const serviceWorkerJsText = `
     './js/speedtest.js',
     './js/ui.js',
     './js/app.js',
-    'https://cdn.tailwindcss.com',
-    'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css',
-    'https://cdnjs.cloudflare.com/ajax/libs/html5-qrcode/2.3.8/html5-qrcode.min.js',
-    'https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.2.0/crypto-js.min.js',
-    'https://unpkg.com/pdf-lib@1.17.1/dist/pdf-lib.min.js',
-    'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.min.js'
+    '[https://cdn.tailwindcss.com](https://cdn.tailwindcss.com)',
+    '[https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css](https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css)',
+    '[https://cdnjs.cloudflare.com/ajax/libs/html5-qrcode/2.3.8/html5-qrcode.min.js](https://cdnjs.cloudflare.com/ajax/libs/html5-qrcode/2.3.8/html5-qrcode.min.js)',
+    '[https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.2.0/crypto-js.min.js](https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.2.0/crypto-js.min.js)',
+    '[https://unpkg.com/pdf-lib@1.17.1/dist/pdf-lib.min.js](https://unpkg.com/pdf-lib@1.17.1/dist/pdf-lib.min.js)',
+    '[https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.min.js](https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.min.js)'
   ];
   self.addEventListener('install', (e) => e.waitUntil(caches.open(CACHE_NAME).then((c) => c.addAll(ASSETS_TO_CACHE))));
   self.addEventListener('activate', (e) => e.waitUntil(caches.keys().then((keys) => Promise.all(keys.filter(k => k !== CACHE_NAME).map(k => caches.delete(k))))));
