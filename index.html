@@ -21,7 +21,6 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html5-qrcode/2.3.8/html5-qrcode.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.2.0/crypto-js.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
     
     <!-- PDF Processing Libraries -->
     <script src="https://unpkg.com/pdf-lib@1.17.1/dist/pdf-lib.min.js"></script>
@@ -56,7 +55,7 @@
   <body class="bg-slate-50 text-slate-800 dark:bg-slate-900 dark:text-slate-100 min-h-screen transition-colors duration-300 relative">
     
     <!-- HEADER BAR -->
-    <header class="sticky top-0 z-40 w-full backdrop-blur-md bg-white/80 dark:bg-slate-900/80 border-b border-slate-200 dark:border-slate-800">
+    <header class="sticky top-0 z-40 w-full backdrop-blur-md bg-white/80 dark:bg-slate-900/80 border-b border-slate-200/60 dark:border-slate-800">
       <div class="max-w-[130rem] mx-auto px-4 sm:px-8 lg:px-12 h-16 flex items-center justify-between">
         <div class="flex items-center space-x-2 sm:space-x-3">
           <div class="bg-gradient-to-tr from-sky-500 via-blue-600 to-indigo-600 p-2 sm:p-2.5 rounded-xl shadow-lg shadow-blue-500/20 text-white">
@@ -74,7 +73,7 @@
           <div class="hidden sm:flex flex-col items-end font-mono text-[10px] md:text-xs text-slate-500 dark:text-slate-400 border-r border-slate-200 dark:border-slate-800 pr-3 md:pr-4">
             <span id="header-date" class="font-medium text-slate-400">Memuat tanggal...</span>
             <span id="header-time" class="font-bold text-slate-700 dark:text-slate-200">WITA</span>
-            <!-- Skrip Inline JamWITAPengatur Jam WITA -->
+            <!-- Skrip Inline Jam Pemuatan Awal -->
             <script>
               (function() {
                 const dateEl = document.getElementById('header-date');
@@ -113,7 +112,7 @@
                 <div class="w-20 h-20 rounded-2xl bg-gradient-to-tr from-sky-400 via-blue-600 to-indigo-600 p-1 shadow-xl">
                   <div class="w-full h-full rounded-[12px] bg-slate-950 flex flex-col items-center justify-center text-white">
                     <i class="fa-solid fa-user-tie text-3xl text-sky-400"></i>
-                    <span id="view-school-badge-pfp" class="text-[8px] font-bold text-slate-400 font-mono tracking-widest mt-1">DAPO</span>
+                    <span id="view-school-badge" class="text-[8px] font-bold text-slate-400 font-mono tracking-widest mt-1">DAPO</span>
                   </div>
                 </div>
                 <span id="status-badge" class="absolute -bottom-1 -right-1 block h-5 w-5 rounded-full ring-4 ring-white dark:ring-slate-800 bg-emerald-500 flex items-center justify-center text-[10px] text-white font-bold transition-colors duration-300" title="Koneksi Status">
@@ -155,67 +154,67 @@
           <div class="bg-white dark:bg-slate-800 p-4 rounded-3xl border border-slate-200/60 dark:border-slate-700/60 shadow-md relative z-30">
             <h3 class="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-4 flex items-center gap-1.5"><i class="fa-solid fa-layer-group text-blue-500"></i> Kategori</h3>
             <nav class="flex lg:flex-col overflow-x-auto no-scrollbar gap-2 lg:gap-1.5" id="category-tabs">
-              <button onclick="selectCategory('semua')" data-category="semua" class="category-tab inline-flex lg:flex items-center justify-between w-auto lg:w-full px-4 py-2.5 text-xs font-bold rounded-xl bg-blue-600 text-white shadow-md">
-                <span class="flex items-center gap-1.5"><i class="fa-solid fa-border-all"></i> Semua</span>
+              <!-- SINKRONISASI SEMUA KATALOG DENGAN IKON DESAIN BARU -->
+              <button onclick="selectCategory('semua')" data-category="semua" class="category-tab inline-flex lg:flex items-center justify-between w-auto lg:w-full px-4 py-2.5 text-xs font-bold rounded-xl bg-blue-600 text-white shadow-md transition-all">
+                <span class="flex items-center gap-1.5"><i class="fa-solid fa-border-all text-blue-300"></i> Semua Katalog</span>
                 <span id="badge-semua" class="ml-1.5 bg-white/20 px-1.5 py-0.5 rounded text-[10px] font-mono">0</span>
               </button>
-              <button onclick="selectCategory('utama')" data-category="utama" class="category-tab inline-flex lg:flex items-center justify-between w-auto lg:w-full px-4 py-2.5 text-xs font-bold rounded-xl bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-400 hover:bg-slate-200">
-                <span class="flex items-center gap-1.5"><i class="fa-solid fa-folder-open text-blue-500"></i> Dapodik Utama</span>
+              
+              <button onclick="selectCategory('utama')" data-category="utama" class="category-tab inline-flex lg:flex items-center justify-between w-auto lg:w-full px-4 py-2.5 text-xs font-bold rounded-xl bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-400 hover:bg-slate-200 transition-all">
+                <span class="flex items-center gap-1.5"><i class="fa-solid fa-database text-blue-500"></i> Dapodik Utama</span>
                 <span id="badge-utama" class="ml-1.5 bg-slate-200 dark:bg-slate-700 px-1.5 py-0.5 rounded text-[10px] font-mono">0</span>
               </button>
-              <button onclick="selectCategory('verval')" data-category="verval" class="category-tab inline-flex lg:flex items-center justify-between w-auto lg:w-full px-4 py-2.5 text-xs font-bold rounded-xl bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-400 hover:bg-slate-200">
-                <span class="flex items-center gap-1.5"><i class="fa-solid fa-user-check text-emerald-500"></i> Sistem Verval</span>
+              
+              <button onclick="selectCategory('verval')" data-category="verval" class="category-tab inline-flex lg:flex items-center justify-between w-auto lg:w-full px-4 py-2.5 text-xs font-bold rounded-xl bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-400 hover:bg-slate-200 transition-all">
+                <span class="flex items-center gap-1.5"><i class="fa-solid fa-shield-halved text-emerald-500"></i> Sistem Verval</span>
                 <span id="badge-verval" class="ml-1.5 bg-slate-200 dark:bg-slate-700 px-1.5 py-0.5 rounded text-[10px] font-mono">0</span>
               </button>
-              <button onclick="selectCategory('keuangan')" data-category="keuangan" class="category-tab inline-flex lg:flex items-center justify-between w-auto lg:w-full px-4 py-2.5 text-xs font-bold rounded-xl bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-400 hover:bg-slate-200">
+              
+              <button onclick="selectCategory('keuangan')" data-category="keuangan" class="category-tab inline-flex lg:flex items-center justify-between w-auto lg:w-full px-4 py-2.5 text-xs font-bold rounded-xl bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-400 hover:bg-slate-200 transition-all">
                 <span class="flex items-center gap-1.5"><i class="fa-solid fa-wallet text-amber-500"></i> Keuangan BOSP</span>
                 <span id="badge-keuangan" class="ml-1.5 bg-slate-200 dark:bg-slate-700 px-1.5 py-0.5 rounded text-[10px] font-mono">0</span>
               </button>
-              <button onclick="selectCategory('guru')" data-category="guru" class="category-tab inline-flex lg:flex items-center justify-between w-auto lg:w-full px-4 py-2.5 text-xs font-bold rounded-xl bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-400 hover:bg-slate-200">
+              
+              <button onclick="selectCategory('guru')" data-category="guru" class="category-tab inline-flex lg:flex items-center justify-between w-auto lg:w-full px-4 py-2.5 text-xs font-bold rounded-xl bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-400 hover:bg-slate-200 transition-all">
                 <span class="flex items-center gap-1.5"><i class="fa-solid fa-chalkboard-user text-indigo-500"></i> Pendidik (GTK)</span>
                 <span id="badge-guru" class="ml-1.5 bg-slate-200 dark:bg-slate-700 px-1.5 py-0.5 rounded text-[10px] font-mono">0</span>
               </button>
-              <button onclick="selectCategory('kepegawaian')" data-category="kepegawaian" class="category-tab inline-flex lg:flex items-center justify-between w-auto lg:w-full px-4 py-2.5 text-xs font-bold rounded-xl bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-400 hover:bg-slate-200">
+              
+              <button onclick="selectCategory('kepegawaian')" data-category="kepegawaian" class="category-tab inline-flex lg:flex items-center justify-between w-auto lg:w-full px-4 py-2.5 text-xs font-bold rounded-xl bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-400 hover:bg-slate-200 transition-all">
                 <span class="flex items-center gap-1.5"><i class="fa-solid fa-id-card-clip text-sky-500"></i> Kepegawaian ASN</span>
                 <span id="badge-kepegawaian" class="ml-1.5 bg-slate-200 dark:bg-slate-700 px-1.5 py-0.5 rounded text-[10px] font-mono">0</span>
               </button>
               
               <!-- Tab Menu: Peralatan PDF -->
-              <button onclick="selectCategory('pdf_tools')" data-category="pdf_tools" class="category-tab inline-flex lg:flex items-center justify-between w-auto lg:w-full px-4 py-2.5 text-xs font-bold rounded-xl bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-400 hover:bg-slate-200">
-                <span class="flex items-center gap-1.5"><i class="fa-solid fa-file-pdf text-rose-500 animate-pulse"></i> Ruang Kerja PDF</span> 
-                <span id="badge-pdf_tools" class="ml-1.5 bg-slate-200 dark:bg-slate-700 px-1.5 py-0.5 rounded text-[10px] font-mono">5</span>
+              <button onclick="selectCategory('pdf_tools')" data-category="pdf_tools" class="category-tab inline-flex lg:flex items-center justify-between w-auto lg:w-full px-4 py-2.5 text-xs font-bold rounded-xl bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-400 hover:bg-slate-200 transition-all">
+                <span class="flex items-center gap-1.5"><i class="fa-solid fa-file-pdf text-rose-500"></i> Ruang Kerja PDF</span> 
+                <span id="badge-pdf_tools" class="ml-1.5 bg-slate-200 dark:bg-slate-700 px-1.5 py-0.5 rounded text-[10px] font-mono">6</span>
               </button>
 
               <!-- Tab Menu: Monitor Server / Latency Ping -->
-              <button onclick="selectCategory('ping_tools')" data-category="ping_tools" class="category-tab inline-flex lg:flex items-center justify-between w-auto lg:w-full px-4 py-2.5 text-xs font-bold rounded-xl bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-400 hover:bg-slate-200">
+              <button onclick="selectCategory('ping_tools')" data-category="ping_tools" class="category-tab inline-flex lg:flex items-center justify-between w-auto lg:w-full px-4 py-2.5 text-xs font-bold rounded-xl bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-400 hover:bg-slate-200 transition-all">
                 <span class="flex items-center gap-1.5"><i class="fa-solid fa-network-wired text-sky-500"></i> Tes Latensi Server</span> 
                 <span id="badge-ping_tools" class="ml-1.5 bg-slate-200 dark:bg-slate-700 px-1.5 py-0.5 rounded text-[10px] font-mono">6</span>
               </button>
 
               <!-- Tab Baru: Uji Kecepatan Internet (Speedtest) -->
-              <button onclick="selectCategory('speedtest')" data-category="speedtest" class="category-tab inline-flex lg:flex items-center justify-between w-auto lg:w-full px-4 py-2.5 text-xs font-bold rounded-xl bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-400 hover:bg-slate-200">
+              <button onclick="selectCategory('speedtest')" data-category="speedtest" class="category-tab inline-flex lg:flex items-center justify-between w-auto lg:w-full px-4 py-2.5 text-xs font-bold rounded-xl bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-400 hover:bg-slate-200 transition-all">
                 <span class="flex items-center gap-1.5"><i class="fa-solid fa-gauge-high text-amber-500"></i> Speedtest Jaringan</span> 
                 <span id="badge-speedtest" class="ml-1.5 bg-slate-200 dark:bg-slate-700 px-1.5 py-0.5 rounded text-[10px] font-mono">1</span>
               </button>
 
-              <!-- Tab Baru: Kompresor Foto -->
-              <button onclick="selectCategory('compress_foto')" data-category="compress_foto" class="category-tab inline-flex lg:flex items-center justify-between w-auto lg:w-full px-4 py-2.5 text-xs font-bold rounded-xl bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-400 hover:bg-slate-200">
-                <span class="flex items-center gap-1.5"><i class="fa-solid fa-file-image text-emerald-500"></i> Kompres Foto</span> 
-                <span id="badge-compress_foto" class="ml-1.5 bg-slate-200 dark:bg-slate-700 px-1.5 py-0.5 rounded text-[10px] font-mono">1</span>
-              </button>
-
-              <button onclick="selectCategory('2fa_auth')" data-category="2fa_auth" class="category-tab inline-flex lg:flex items-center justify-between w-auto lg:w-full px-4 py-2.5 text-xs font-bold rounded-xl bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-400 hover:bg-slate-200">
-                <span class="flex items-center gap-1.5"><i class="fa-solid fa-shield-halved text-blue-500"></i> Kunci Keamanan</span> 
+              <button onclick="selectCategory('2fa_auth')" data-category="2fa_auth" class="category-tab inline-flex lg:flex items-center justify-between w-auto lg:w-full px-4 py-2.5 text-xs font-bold rounded-xl bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-400 hover:bg-slate-200 transition-all">
+                <span class="flex items-center gap-1.5"><i class="fa-solid fa-shield-halved text-blue-500"></i> Kunci Keamanan</span>
                 <span id="badge-2fa_auth" class="ml-1.5 bg-slate-200 dark:bg-slate-700 px-1.5 py-0.5 rounded text-[10px] font-mono">0</span>
               </button>
               
-              <!-- Portal TKA Nav Link -->
-              <button onclick="selectCategory('portal_tka')" data-category="portal_tka" class="category-tab inline-flex lg:flex items-center justify-between w-auto lg:w-full px-4 py-2.5 text-xs font-bold rounded-xl bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-400 hover:bg-slate-200">
+              <!-- Portal TKA -->
+              <button onclick="selectCategory('portal_tka')" data-category="portal_tka" class="category-tab inline-flex lg:flex items-center justify-between w-auto lg:w-full px-4 py-2.5 text-xs font-bold rounded-xl bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-400 hover:bg-slate-200 transition-all">
                 <span class="flex items-center gap-1.5"><i class="fa-solid fa-laptop-code text-rose-500"></i> Portal TKA</span> 
                 <span id="badge-portal_tka" class="ml-1.5 bg-slate-200 dark:bg-slate-700 px-1.5 py-0.5 rounded text-[10px] font-mono">0</span>
               </button>
               
-              <button onclick="selectCategory('daerah')" data-category="daerah" class="category-tab inline-flex lg:flex items-center justify-between w-auto lg:w-full px-4 py-2.5 text-xs font-bold rounded-xl bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-400 hover:bg-slate-200">
+              <button onclick="selectCategory('daerah')" data-category="daerah" class="category-tab inline-flex lg:flex items-center justify-between w-auto lg:w-full px-4 py-2.5 text-xs font-bold rounded-xl bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-400 hover:bg-slate-200 transition-all">
                 <span class="flex items-center gap-1.5"><i class="fa-solid fa-city text-purple-500"></i> Portal Daerah</span> 
                 <span id="badge-daerah" class="ml-1.5 bg-slate-200 dark:bg-slate-700 px-1.5 py-0.5 rounded text-[10px] font-mono">0</span>
               </button>
@@ -412,33 +411,52 @@
                 </button>
               </div>
 
-              <!-- SUB-TAB 3: KOMPRES PDF -->
+              <!-- SUB-TAB 3: KOMPRES PDF (ONLINE/LOKAL) -->
               <div id="sub-pdf-compress" class="hidden space-y-4">
                 <div class="border-2 border-dashed border-slate-200 dark:border-slate-700 hover:border-blue-500 dark:hover:border-blue-500 p-6 rounded-2xl text-center cursor-pointer transition relative">
                   <input type="file" id="pdf-compress-input" accept="application/pdf" class="absolute inset-0 opacity-0 cursor-pointer" onchange="handleCompressFileSelect(event)" />
                   <i class="fa-solid fa-file-zipper text-3xl text-slate-300 dark:text-slate-600 mb-2"></i>
                   <p id="pdf-compress-filename" class="text-xs font-bold text-slate-700 dark:text-slate-300">Tarik & Lepas File PDF disini</p>
+                  <p class="text-[10px] text-slate-400 mt-1">Atau klik untuk menjelajahi berkas komputer Anda</p>
                 </div>
-                <div id="pdf-compress-info" class="hidden p-3.5 bg-slate-50 dark:bg-slate-900/60 rounded-xl border border-slate-150 dark:border-slate-800 space-y-3">
-                  <div class="flex justify-between items-center text-xs">
-                    <span class="text-slate-400 font-bold">Nama Berkas:</span>
-                    <span id="compress-file-name" class="font-bold text-slate-800 dark:text-slate-200 truncate max-w-[200px]">-</span>
-                  </div>
-                  <div class="flex justify-between items-center text-xs">
-                    <span class="text-slate-400 font-bold">Ukuran Asli:</span>
-                    <span id="compress-file-size" class="font-mono font-black text-slate-800 dark:text-slate-200">-</span>
-                  </div>
-                  <div class="pt-2 border-t border-slate-200 dark:border-slate-700 space-y-2">
-                    <label class="block text-[9px] font-black uppercase text-slate-400">Pilih Kekuatan Kompresi:</label>
-                    <div class="grid grid-cols-3 gap-2">
-                      <button id="btn-compress-low" onclick="setCompressionLevel('low')" class="py-2.5 px-3 rounded-xl text-xs font-bold border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-50">Rendah (Tajam)</button>
-                      <button id="btn-compress-medium" onclick="setCompressionLevel('medium')" class="py-2.5 px-3 rounded-xl text-xs font-bold border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-50">Sedang (Standar)</button>
-                      <button id="btn-compress-high" onclick="setCompressionLevel('high')" class="py-2.5 px-3 rounded-xl text-xs font-bold border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-50">Tinggi (Kecil)</button>
+                <div id="pdf-compress-info" class="hidden p-3 bg-slate-50 dark:bg-slate-900/60 rounded-xl border border-slate-100 dark:border-slate-700 flex justify-between items-center text-xs">
+                  <span class="truncate font-semibold text-slate-700 dark:text-slate-300"><i class="fa-solid fa-file-pdf text-rose-500 mr-1.5"></i><span id="compress-file-name">file.pdf</span></span>
+                  <span class="font-mono text-slate-500" id="compress-file-size">0 KB</span>
+                </div>
+                
+                <!-- Pilihan Tingkat Kompresi -->
+                <div class="grid grid-cols-3 gap-2">
+                  <button onclick="setCompressionLevel('low')" id="btn-compress-low" class="py-2.5 px-3 rounded-xl text-xs font-bold border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-50">Rendah (Kualitas Bagus)</button>
+                  <button onclick="setCompressionLevel('medium')" id="btn-compress-medium" class="py-2.5 px-3 rounded-xl text-xs font-bold border-blue-500 bg-blue-50 dark:bg-blue-950/40 text-blue-600 dark:text-blue-400 shadow-xs text-center">Sedang (Rekomendasi)</button>
+                  <button onclick="setCompressionLevel('high')" id="btn-compress-high" class="py-2.5 px-3 rounded-xl text-xs font-bold border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-50">Tinggi (Kualitas Rendah)</button>
+                </div>
+
+                <!-- Info Keamanan Lokal & Deskripsi -->
+                <div class="p-4 bg-emerald-50/50 dark:bg-emerald-950/15 rounded-2xl border border-emerald-100 dark:border-emerald-900/30 space-y-2 text-xs">
+                  <h4 class="font-bold text-emerald-800 dark:text-emerald-400 flex items-center gap-1.5">
+                    <i class="fa-solid fa-shield-halved text-emerald-500 animate-pulse"></i> Pemrosesan 100% Aman & Lokal
+                  </h4>
+                  <p class="text-slate-600 dark:text-slate-400 leading-relaxed text-[11px]">
+                    Kami sangat peduli dengan kerahasiaan berkas pendaftaran dan administrasi Anda.
+                  </p>
+                  <div class="grid grid-cols-1 md:grid-cols-3 gap-3 pt-2 text-[10px] text-slate-500 dark:text-slate-400">
+                    <div class="p-2.5 bg-white dark:bg-slate-900 border rounded-xl space-y-1">
+                      <span class="font-bold text-slate-700 dark:text-slate-200 flex items-center gap-1"><i class="fa-solid fa-cloud-slash text-rose-500"></i> Tanpa Upload</span>
+                      <p class="leading-relaxed">File PDF diproses sepenuhnya di browser Anda. Dokumen, teks, dan data penting lainnya tidak pernah dikirim ke server kami, aman dari kebocoran data.</p>
+                    </div>
+                    <div class="p-2.5 bg-white dark:bg-slate-900 border rounded-xl space-y-1">
+                      <span class="font-bold text-slate-700 dark:text-slate-200 flex items-center gap-1"><i class="fa-solid fa-bolt text-amber-500"></i> Mudah & Instan</span>
+                      <p class="leading-relaxed">Cukup pilih file, tentukan tingkat kompresi, dan biarkan sistem merender halaman dalam hitungan detik. Menghemat kuota internet dan waktu Anda.</p>
+                    </div>
+                    <div class="p-2.5 bg-white dark:bg-slate-900 border rounded-xl space-y-1">
+                      <span class="font-bold text-slate-700 dark:text-slate-200 flex items-center gap-1"><i class="fa-solid fa-folder-open text-blue-500"></i> Optimal</span>
+                      <p class="leading-relaxed">Cocok untuk memangkas ukuran PDF scan berat seperti Portofolio Guru, RPP, Sertifikat Diklat, Surat Keputusan (SK), maupun berkas ijazah.</p>
                     </div>
                   </div>
                 </div>
-                <button onclick="processPdfCompression()" class="w-full py-3 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-extrabold rounded-xl transition shadow-md flex items-center justify-center gap-1.5">
-                  <i class="fa-solid fa-file-zipper"></i> Jalankan Kompresi PDF
+
+                <button onclick="processPdfCompression()" class="w-full py-3.5 bg-rose-600 hover:bg-rose-700 text-white text-xs font-extrabold rounded-xl transition shadow-md flex items-center justify-center gap-1.5">
+                  <i class="fa-solid fa-file-zipper"></i> Kompres & Unduh PDF
                 </button>
               </div>
 
@@ -505,16 +523,16 @@
               </header>
 
               <!-- Panel Kontrol Aksi -->
-              <div class="flex flex-col sm:flex-row gap-3 items-center justify-between bg-slate-50 dark:bg-slate-900/40 p-4 rounded-2xl border border-slate-150 dark:border-slate-700/50">
-                <div class="text-xs">
+              <div class="flex flex-col md:flex-row gap-4 items-start md:items-center justify-between bg-slate-50 dark:bg-slate-900/40 p-4 rounded-2xl border border-slate-150 dark:border-slate-700/50">
+                <div class="text-xs min-w-0 flex-1 pr-2">
                   <h4 class="font-bold text-slate-800 dark:text-white flex items-center gap-1.5"><i class="fa-solid fa-circle-nodes text-sky-500 animate-pulse"></i> Auto-Ping Tracker</h4>
-                  <p class="text-slate-500 mt-0.5">Memantau tingkat kesibukan server Datadik secara dinamis setiap 10 detik.</p>
+                  <p class="text-slate-500 dark:text-slate-400 mt-0.5 leading-relaxed">Memantau tingkat kesibukan server Datadik secara dinamis setiap 10 detik.</p>
                 </div>
-                <div class="flex gap-2 w-full sm:w-auto">
-                  <button onclick="pingAllEndpoints()" class="flex-1 sm:flex-none px-4 py-2.5 bg-sky-600 hover:bg-sky-700 text-white text-xs font-bold rounded-xl transition shadow-md shadow-sky-500/10 flex items-center justify-center gap-1.5">
+                <div class="flex gap-2 w-full md:w-auto flex-wrap sm:flex-nowrap justify-end">
+                  <button onclick="pingAllEndpoints()" class="flex-1 md:flex-none px-4 py-2.5 bg-sky-600 hover:bg-sky-700 text-white text-xs font-bold rounded-xl transition-all shadow-md shadow-sky-500/10 flex items-center justify-center gap-1.5">
                     <i class="fa-solid fa-bolt"></i> Mulai Ping Massal
                   </button>
-                  <button id="btn-toggle-autoping" onclick="toggleAutoPing()" class="flex-1 sm:flex-none px-4 py-2.5 bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-200 text-xs font-bold rounded-xl transition flex items-center justify-center gap-1.5">
+                  <button id="btn-toggle-autoping" onclick="toggleAutoPing()" class="flex-1 md:flex-none px-4 py-2.5 bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-200 text-xs font-bold rounded-xl transition-all flex items-center justify-center gap-1.5">
                     <i id="icon-autoping" class="fa-solid fa-stop"></i> <span id="text-autoping">Hentikan Auto</span>
                   </button>
                 </div>
@@ -603,7 +621,7 @@
                   <i class="fa-solid fa-circle-question"></i>
                 </div>
                 <div class="text-xs">
-                  <h4 class="font-bold text-slate-800 dark:text-white" id="speedtest-integrity-title">Analisis Kelayakan Koneksi</h4>
+                  <h4 class="font-bold text-slate-800 dark:text-white" id="speedtest-integrity-title">Analisis Kelayakan Jaringan</h4>
                   <p class="text-slate-500 dark:text-slate-400 mt-0.5 leading-relaxed" id="speedtest-integrity-desc">Mulai uji kecepatan jaringan untuk mendeteksi kelayakan sinkronisasi Dapodik dan server ANBK sekolah.</p>
                 </div>
               </div>
@@ -616,136 +634,6 @@
               <footer class="pt-3 border-t border-slate-100 dark:border-slate-700/60 flex flex-col sm:flex-row items-center justify-between text-[10px] text-slate-400 dark:text-slate-500 font-medium gap-2">
                 <span class="flex items-center gap-1"><i class="fa-solid fa-lock text-emerald-500"></i> Pengujian memanfaatkan berkas CDN jsDelivr global terenkripsi TLS 1.3 secara asinkron.</span>
                 <span class="font-mono text-[9px]">AJAX Bandwidth Reader</span>
-              </footer>
-            </div>
-          </article>
-
-          <!-- NEW WORKSPACE: OFFLINE IMAGE COMPRESSOR FOR PASFOTO & IJAZAH -->
-          <article id="panel-compress-wrapper" class="hidden space-y-6 animate-fade-in">
-            <div class="bg-white dark:bg-slate-800 p-5 sm:p-6 rounded-3xl border border-slate-200/60 dark:border-slate-700/60 shadow-md space-y-6">
-              <header class="flex justify-between items-center pb-3 border-b border-slate-100 dark:border-slate-700">
-                <h3 class="font-space font-extrabold text-base text-slate-900 dark:text-white flex items-center gap-2">
-                  <i class="fa-solid fa-file-image text-emerald-500 animate-pulse"></i> Pengompres Foto Ijazah & Pasfoto
-                </h3>
-                <span class="text-[9px] font-black tracking-widest bg-emerald-50 dark:bg-emerald-950/40 text-emerald-600 dark:text-emerald-400 px-2 py-0.5 rounded uppercase">offline engine</span>
-              </header>
-
-              <!-- Presets Grid -->
-              <div class="space-y-3">
-                <label class="block text-[10px] font-black uppercase tracking-wider text-slate-400">Pilih Preset Kompresi:</label>
-                <div class="grid grid-cols-4 gap-2">
-                  <button id="preset-pasfoto" onclick="setCompressionPreset('pasfoto')" class="py-3 px-2 rounded-2xl border text-center transition-all flex flex-col items-center justify-center gap-1 border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-850 hover:bg-slate-50">
-                    <i class="fa-solid fa-user-tie text-lg"></i>
-                    <span class="text-[10px] font-bold">Pasfoto</span>
-                    <span class="text-[8px] opacity-60">Maks 200KB</span>
-                  </button>
-                  <button id="preset-ijazah" onclick="setCompressionPreset('ijazah')" class="py-3 px-2 rounded-2xl border text-center transition-all flex flex-col items-center justify-center gap-1 border-blue-500 bg-blue-50/50 dark:bg-blue-950/30 text-blue-600 dark:text-blue-400 shadow-sm">
-                    <i class="fa-solid fa-graduation-cap text-lg"></i>
-                    <span class="text-[10px] font-bold">Ijazah</span>
-                    <span class="text-[8px] opacity-60">Maks 300KB</span>
-                  </button>
-                  <button id="preset-dokumen" onclick="setCompressionPreset('dokumen')" class="py-3 px-2 rounded-2xl border text-center transition-all flex flex-col items-center justify-center gap-1 border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-850 hover:bg-slate-50">
-                    <i class="fa-solid fa-file-invoice text-lg"></i>
-                    <span class="text-[10px] font-bold">Dokumen</span>
-                    <span class="text-[8px] opacity-60">Maks 500KB</span>
-                  </button>
-                  <button id="preset-custom" onclick="setCompressionPreset('custom')" class="py-3 px-2 rounded-2xl border text-center transition-all flex flex-col items-center justify-center gap-1 border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-850 hover:bg-slate-50">
-                    <i class="fa-solid fa-sliders text-lg"></i>
-                    <span class="text-[10px] font-bold">Kustom</span>
-                    <span class="text-[8px] opacity-60">Atur Manual</span>
-                  </button>
-                </div>
-              </div>
-
-              <!-- Custom Controls Panel -->
-              <div id="custom-controls-wrapper" class="hidden p-4 bg-slate-50 dark:bg-slate-900 rounded-2xl border border-slate-150 dark:border-slate-700 space-y-4">
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div class="space-y-1">
-                    <label class="block text-[10px] font-black uppercase tracking-wider text-slate-400">Target Ukuran Berkas:</label>
-                    <div class="relative">
-                      <input type="number" id="target-kb-input" value="300" oninput="updateControlsFromCustomInput()" class="w-full text-xs p-2.5 rounded-xl border dark:bg-slate-800 dark:text-white dark:border-slate-700 bg-white outline-none focus:ring-1 focus:ring-blue-500 font-mono" />
-                      <span class="absolute right-3 top-2.5 text-[10px] font-bold text-slate-400">KB</span>
-                    </div>
-                  </div>
-                  <div class="space-y-1">
-                    <label class="block text-[10px] font-black uppercase tracking-wider text-slate-400">Format Keluaran:</label>
-                    <select id="target-format" onchange="runAutoCompression()" class="w-full text-xs p-2.5 rounded-xl border dark:bg-slate-800 dark:text-white dark:border-slate-700 bg-white outline-none focus:ring-1 focus:ring-blue-500 font-bold cursor-pointer">
-                      <option value="original">Format Asli</option>
-                      <option value="image/jpeg">JPG / JPEG</option>
-                      <option value="image/png">PNG</option>
-                      <option value="image/webp">WEBP</option>
-                    </select>
-                  </div>
-                </div>
-
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2">
-                  <div class="space-y-1">
-                    <div class="flex justify-between items-center text-[10px] font-bold text-slate-400">
-                      <span>Rasio Skala Lebar/Tinggi:</span>
-                      <span id="scale-value" class="font-mono text-blue-600 dark:text-blue-400">100%</span>
-                    </div>
-                    <input type="range" id="scale-slider" min="10" max="100" value="100" oninput="handleSliderChange()" class="w-full h-1 bg-slate-200 rounded-lg appearance-none cursor-pointer dark:bg-slate-700 accent-blue-600" />
-                  </div>
-                  <div class="space-y-1">
-                    <div class="flex justify-between items-center text-[10px] font-bold text-slate-400">
-                      <span>Rasio Kualitas Kompresi:</span>
-                      <span id="quality-value" class="font-mono text-blue-600 dark:text-blue-400">75%</span>
-                    </div>
-                    <input type="range" id="quality-slider" min="10" max="100" value="75" oninput="handleSliderChange()" class="w-full h-1 bg-slate-200 rounded-lg appearance-none cursor-pointer dark:bg-slate-700 accent-blue-600" />
-                  </div>
-                </div>
-              </div>
-
-              <!-- Upload Drag-and-Drop Area -->
-              <div class="border-2 border-dashed border-slate-200 dark:border-slate-700 hover:border-blue-500 dark:hover:border-blue-500 p-6 rounded-2xl text-center cursor-pointer transition relative">
-                <input type="file" id="compressor-file-input" multiple accept="image/*" class="absolute inset-0 opacity-0 cursor-pointer" onchange="handleFileSelect(event)" />
-                <i class="fa-solid fa-images text-3xl text-slate-300 dark:text-slate-600 mb-2"></i>
-                <p class="text-xs font-bold text-slate-700 dark:text-slate-300">Pilih berkas foto atau seret kemari</p>
-                <p class="text-[9px] text-slate-400 mt-1">Mendukung format gambar JPEG, PNG, dan WEBP</p>
-              </div>
-
-              <!-- Queue Results Card (Hidden if empty) -->
-              <div id="results-card" class="hidden space-y-4">
-                <div class="flex items-center justify-between">
-                  <h4 class="text-xs font-black uppercase tracking-wider text-slate-400 flex items-center gap-1.5">
-                    <i class="fa-solid fa-list-check text-blue-500"></i> Antrean Hasil Kompresi
-                  </h4>
-                  <div class="flex gap-2">
-                    <button onclick="clearQueue()" class="text-[10px] font-bold text-rose-500 hover:underline">Hapus Semua</button>
-                    <span id="avg-saved-badge" class="text-[9px] font-mono font-bold bg-emerald-50 dark:bg-emerald-950/40 text-emerald-600 dark:text-emerald-400 px-1.5 py-0.5 rounded">0%</span>
-                  </div>
-                </div>
-
-                <!-- Processed Files List -->
-                <div id="results-container" class="space-y-3 max-h-72 overflow-y-auto custom-scroll"></div>
-
-                <!-- Actions Footer -->
-                <div class="flex flex-col sm:flex-row gap-3 pt-2">
-                  <button onclick="downloadAllProcessed()" class="flex-1 py-3 bg-blue-600 hover:bg-blue-700 text-white text-xs font-extrabold rounded-xl transition shadow-md shadow-blue-500/10 flex items-center justify-center gap-1.5">
-                    <i class="fa-solid fa-file-zipper"></i> Unduh Semua Hasil (.ZIP)
-                  </button>
-                  <button onclick="simulateUploadAllDrive()" class="flex-1 py-3 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-extrabold rounded-xl transition shadow-md shadow-emerald-500/10 flex items-center justify-center gap-1.5">
-                    <i class="fa-brands fa-google-drive"></i> Kirim ke Google Drive Sekolah
-                  </button>
-                </div>
-              </div>
-
-              <!-- Integration and Standalone offline utilities -->
-              <div class="p-4 bg-blue-50/70 dark:bg-blue-950/20 rounded-2xl border border-blue-200/50 dark:border-blue-800/40 space-y-3">
-                <h4 class="text-[11px] font-black text-blue-700 dark:text-blue-400 flex items-center gap-1.5"><i class="fa-solid fa-circle-nodes"></i> Integrasi Standalone &amp; Cloud</h4>
-                <p class="text-[9px] text-slate-500 dark:text-slate-400 leading-relaxed">
-                  Gunakan otorisasi Google Drive untuk menyimpan berkas otomatis, atau unduh paket aplikasi luring mandiri untuk dijalankan di mana saja tanpa kuota internet.
-                </p>
-                <div class="grid grid-cols-2 gap-2">
-                  <button onclick="simulateGoogleDriveAuth()" class="py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-[10px] font-bold transition flex items-center justify-center gap-1"><i class="fa-brands fa-google-drive"></i> Hubungkan Drive</button>
-                  <button onclick="downloadOfflineAppBundle()" class="py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-[10px] font-bold transition flex items-center justify-center gap-1"><i class="fa-solid fa-download"></i> Rilis Offline (.html)</button>
-                </div>
-              </div>
-
-              <!-- Footer Keamanan -->
-              <footer class="pt-3 border-t border-slate-100 dark:border-slate-700/60 flex flex-col sm:flex-row items-center justify-between text-[10px] text-slate-400 dark:text-slate-500 font-medium gap-2">
-                <span class="flex items-center gap-1"><i class="fa-solid fa-shield-halved text-emerald-500"></i> Pengolahan foto ijazah dikerjakan 100% luring (client-side) demi kerahasiaan dokumen resmi murid.</span>
-                <span class="font-mono text-[9px]">JS Canvas Engine</span>
               </footer>
             </div>
           </article>
@@ -864,8 +752,12 @@
                 Unduh paket berikut untuk meletakkan file pendukung luring.
               </p>
               <div class="grid grid-cols-2 gap-2">
-                <button onclick="downloadPwaFile('manifest')" class="py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-[10px] font-bold transition flex items-center justify-center gap-1"><i class="fa-solid fa-file-code"></i> Manifest</button>
-                <button onclick="downloadPwaFile('sw')" class="py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-[10px] font-bold transition flex items-center justify-center gap-1"><i class="fa-solid fa-gears"></i> SW.js</button>
+                <button onclick="downloadPwaFile('manifest')" class="py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-[10px] font-bold transition flex items-center justify-center gap-1">
+                  <i class="fa-solid fa-file-code"></i> Manifest
+                </button>
+                <button onclick="downloadPwaFile('sw')" class="py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-[10px] font-bold transition flex items-center justify-center gap-1">
+                  <i class="fa-solid fa-gears"></i> SW.js
+                </button>
               </div>
               <div class="text-[9px] text-center pt-1 flex items-center justify-center gap-1 text-slate-400 dark:text-slate-500 font-medium">
                 <span id="pwa-sw-status-dot" class="w-1.5 h-1.5 rounded-full bg-slate-400 animate-pulse"></span>
@@ -1009,6 +901,31 @@
       </div>
     </div>
 
+    <!-- TOAST NOTIFICATION -->
+    <div id="toast" class="fixed bottom-5 right-5 z-50 transform translate-y-4 opacity-0 pointer-events-none transition-all duration-300 flex items-center gap-2.5 bg-slate-900/95 dark:bg-white text-white dark:text-slate-900 text-xs py-3.5 px-5 rounded-xl shadow-xl border border-slate-800 dark:border-slate-100 font-sans">
+      <i id="toast-icon" class="fa-solid fa-circle-check text-emerald-400 dark:text-emerald-600 text-base"></i>
+      <span id="toast-message" class="font-bold">Notifikasi sistem aktif</span>
+    </div>
+
+    <!-- MASTER SECURE PIN OVERLAY SCREEN -->
+    <div id="master-pin-screen" class="fixed inset-0 z-50 bg-slate-950/95 flex flex-col items-center justify-center transition-all duration-500">
+      <div class="text-center p-8 max-w-sm mx-4 rounded-3xl bg-slate-900 border border-slate-800 shadow-2xl space-y-6 font-sans">
+        <div class="w-20 h-20 mx-auto rounded-full bg-blue-600/15 border border-blue-500/30 flex items-center justify-center text-blue-500 text-3xl">
+          <i class="fa-solid fa-shield-halved"></i>
+        </div>
+        <div class="space-y-2">
+          <h3 id="pin-screen-title" class="text-white font-space font-black text-lg">Buat PIN Master Anda</h3>
+          <p id="pin-screen-desc" class="text-xs text-slate-400 leading-relaxed">Masukkan 6-digit PIN Keamanan untuk mengenkripsi seluruh kredensial 2FA dan memo secara aman di komputer ini.</p>
+        </div>
+        <div class="space-y-4">
+          <input type="password" id="pin-input-field" maxlength="6" pattern="[0-9]*" inputmode="numeric" placeholder="••••••" onkeydown="if(event.key === 'Enter') handlePinSubmit()" class="w-full tracking-[1.5em] text-center text-2xl font-bold p-3 bg-slate-950 border border-slate-800 rounded-xl text-white outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/30 transition" />
+          <button id="btn-submit-pin" onclick="handlePinSubmit()" class="w-full py-3 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl text-xs transition duration-200 shadow-lg shadow-blue-500/20">
+            <span id="pin-btn-text">Atur PIN Baru</span>
+          </button>
+        </div>
+      </div>
+    </div>
+
     <!-- Script Load Order (Modular) -->
     <script src="js/utils.js"></script>
     <script src="js/storage.js"></script>
@@ -1017,7 +934,6 @@
     <script src="js/pdf-tools.js"></script>
     <script src="js/ping-tools.js"></script>
     <script src="js/speedtest.js"></script>
-    <script src="js/compressor.js"></script> <!-- Module Pemuat Kompresor Foto Resmi -->
     <script src="js/ui.js"></script>
     <script src="js/app.js"></script>
   </body>
