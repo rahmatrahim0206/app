@@ -202,11 +202,11 @@ function updateAutoPingUI(isActive) {
   if (!btn || !icon || !text) return;
 
   if (isActive) {
-    btn.className = "flex-1 sm:flex-none px-4 py-2.5 bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold rounded-xl transition flex items-center justify-center gap-1.5 shadow-md";
+    btn.className = "flex-1 md:flex-none px-4 py-2.5 bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold rounded-xl transition-all flex items-center justify-center gap-1.5 shadow-md";
     icon.className = "fa-solid fa-stop";
     text.textContent = "Hentikan Auto";
   } else {
-    btn.className = "flex-1 sm:flex-none px-4 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-xl transition flex items-center justify-center gap-1.5 shadow-md";
+    btn.className = "flex-1 md:flex-none px-4 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-xl transition-all flex items-center justify-center gap-1.5 shadow-md";
     icon.className = "fa-solid fa-play animate-pulse";
     text.textContent = "Aktifkan Auto";
   }
