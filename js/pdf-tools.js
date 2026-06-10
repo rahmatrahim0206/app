@@ -9,6 +9,10 @@ var selectedImgFiles = [];
 var selectedWordFile = null;
 var extractedPdfText = "";
 
+// State khusus untuk Kompresor PDF Online Lokal
+var selectedCompressFile = null;
+var currentCompressionLevel = "medium"; // Pilihan bawaan: medium
+
 // Inisialisasi awal Worker PDFJS untuk pembacaan teks PDF offline
 if (typeof pdfjsLib !== 'undefined') {
   pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.worker.min.js';
@@ -21,12 +25,20 @@ function resetPdfWorkspaces() {
   selectedImgFiles = [];
   selectedWordFile = null;
   extractedPdfText = "";
+  selectedCompressFile = null;
+  currentCompressionLevel = "medium";
   
   const mergeList = document.getElementById('pdf-merge-list');
   if (mergeList) mergeList.innerHTML = '';
   
   const splitFn = document.getElementById('pdf-split-filename');
   if (splitFn) splitFn.textContent = "Unggah satu file PDF yang ingin dipisahkan";
+  
+  const compressFn = document.getElementById('pdf-compress-filename');
+  if (compressFn) compressFn.textContent = "Tarik & Lepas File PDF disini";
+  
+  const compressInfo = document.getElementById('pdf-compress-info');
+  if (compressInfo) compressInfo.classList.add('hidden');
   
   const imgPrev = document.getElementById('pdf-img-preview');
   if (imgPrev) imgPrev.innerHTML = '';
@@ -48,11 +60,14 @@ function resetPdfWorkspaces() {
   
   const textFilename = document.getElementById('pdf-text-filename');
   if (textFilename) textFilename.value = '';
+
+  // Menyetel ulang visual tombol pilihan kompresi ke setelan bawaan
+  setCompressionLevel('medium');
 }
 
 // Beralih Tab Mini di dalam Menu PDF
 function switchPdfSubTab(tabName) {
-  const tabs = ['merge', 'split', 'img2pdf', 'text2pdf', 'pdf2word'];
+  const tabs = ['merge', 'split', 'compress', 'img2pdf', 'text2pdf', 'pdf2word'];
   tabs.forEach(t => {
     const btn = document.getElementById(`btn-pdf-${t}`);
     const panel = document.getElementById(`sub-pdf-${t}`);
@@ -67,6 +82,145 @@ function switchPdfSubTab(tabName) {
       panel.classList.toggle('hidden', t !== tabName);
     }
   });
+}
+
+// --- LOGIKA KOMPRES PDF (COMPRESS) ---
+function handleCompressFileSelect(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+
+  const isPdf = file.type === "application/pdf" || file.name.toLowerCase().endsWith('.pdf');
+  if (isPdf) {
+    selectedCompressFile = file;
+    
+    // Konversi byte ukuran file agar ramah dibaca
+    let fileSizeStr = (file.size / 1024).toFixed(1) + " KB";
+    if (file.size > 1024 * 1024) {
+      fileSizeStr = (file.size / (1024 * 1024)).toFixed(2) + " MB";
+    }
+
+    const filenameEl = document.getElementById('pdf-compress-filename');
+    if (filenameEl) filenameEl.innerHTML = `<i class="fa-solid fa-file-zipper text-emerald-500 mr-1.5"></i>Dokumen Berhasil Dimuat`;
+
+    const infoBox = document.getElementById('pdf-compress-info');
+    const nameEl = document.getElementById('compress-file-name');
+    const sizeEl = document.getElementById('compress-file-size');
+
+    if (infoBox && nameEl && sizeEl) {
+      infoBox.classList.remove('hidden');
+      nameEl.textContent = file.name;
+      sizeEl.textContent = fileSizeStr;
+    }
+
+    if (typeof showToast === 'function') showToast("File PDF berhasil dimuat untuk dikompres!", "success");
+  } else {
+    if (typeof showToast === 'function') showToast("Harap pilih berkas dengan format PDF!", "error");
+    e.target.value = "";
+  }
+}
+
+function setCompressionLevel(level) {
+  currentCompressionLevel = level;
+  const btnLow = document.getElementById('btn-compress-low');
+  const btnMedium = document.getElementById('btn-compress-medium');
+  const btnHigh = document.getElementById('btn-compress-high');
+
+  if (!btnLow || !btnMedium || !btnHigh) return;
+
+  // Atur ulang gaya kelas Tailwind untuk semua tombol kompresi
+  const unselectedStyle = "py-2.5 px-3 rounded-xl text-xs font-bold border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-50";
+  btnLow.className = unselectedStyle;
+  btnMedium.className = unselectedStyle;
+  btnHigh.className = unselectedStyle;
+
+  // Setel warna biru terpilih untuk tingkat kualitas yang aktif
+  if (level === 'low') {
+    btnLow.className = "py-2.5 px-3 rounded-xl text-xs font-bold border-blue-500 bg-blue-50 dark:bg-blue-950/40 text-blue-600 dark:text-blue-400 shadow-xs text-center";
+  } else if (level === 'medium') {
+    btnMedium.className = "py-2.5 px-3 rounded-xl text-xs font-bold border-blue-500 bg-blue-50 dark:bg-blue-950/40 text-blue-600 dark:text-blue-400 shadow-xs text-center";
+  } else if (level === 'high') {
+    btnHigh.className = "py-2.5 px-3 rounded-xl text-xs font-bold border-blue-500 bg-blue-50 dark:bg-blue-950/40 text-blue-600 dark:text-blue-400 shadow-xs text-center";
+  }
+}
+
+// Proses Kompresi PDF Menggunakan pdf.js (Renders to Canvas) dan pdf-lib (Re-embeds JPEGs)
+async function processPdfCompression() {
+  if (!selectedCompressFile) {
+    if (typeof showToast === 'function') showToast("Harap pilih berkas PDF terlebih dahulu!", "warning");
+    return;
+  }
+
+  if (typeof showToast === 'function') showToast("Memulai proses kompresi lokal... Mohon tunggu.", "warning");
+
+  try {
+    const { PDFDocument } = PDFLib;
+    const arrayBuffer = await selectedCompressFile.arrayBuffer();
+    
+    // Muat dokumen PDF asli menggunakan pdf.js
+    const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+    const totalPages = pdf.numPages;
+    const compressedPdfDoc = await PDFDocument.create();
+
+    // Atur parameter rasio skala & kualitas JPEG berdasarkan tingkat kompresi pilihan pengguna
+    let scaleRatio = 1.0;
+    let jpegQuality = 0.6; // Bawaan rekomendasi
+
+    if (currentCompressionLevel === 'low') {
+      scaleRatio = 1.5; // Kualitas tinggi
+      jpegQuality = 0.8;
+    } else if (currentCompressionLevel === 'medium') {
+      scaleRatio = 1.0; // Standar
+      jpegQuality = 0.5;
+    } else if (currentCompressionLevel === 'high') {
+      scaleRatio = 0.75; // Ukuran berkas paling hemat
+      jpegQuality = 0.3;
+    }
+
+    // Melakukan rendering tiap halaman PDF asli ke Canvas lalu mengekstrak gambar JPEG terkompresi
+    for (let i = 1; i <= totalPages; i++) {
+      const page = await pdf.getPage(i);
+      const viewport = page.getViewport({ scale: scaleRatio });
+
+      const canvas = document.createElement('canvas');
+      const ctx = canvas.getContext('2d');
+      canvas.width = viewport.width;
+      canvas.height = viewport.height;
+
+      const renderContext = {
+        canvasContext: ctx,
+        viewport: viewport
+      };
+
+      await page.render(renderContext).promise;
+
+      // Konversi hasil render kanvas menjadi biner gambar JPEG terkompresi
+      const jpegDataUrl = canvas.toDataURL('image/jpeg', jpegQuality);
+      const jpegBytes = await fetch(jpegDataUrl).then(res => res.arrayBuffer());
+
+      // Sematkan gambar terkompresi ke dalam dokumen pdf-lib yang baru
+      const embeddedImage = await compressedPdfDoc.embedJpg(jpegBytes);
+      const { width, height } = embeddedImage.scale(1.0);
+      const newPage = compressedPdfDoc.addPage([width, height]);
+      
+      newPage.drawImage(embeddedImage, {
+        x: 0,
+        y: 0,
+        width: width,
+        height: height
+      });
+    }
+
+    const compressedBytes = await compressedPdfDoc.save();
+    const cleanName = selectedCompressFile.name.replace(".pdf", "_terkompresi.pdf");
+    
+    // Eksekusi download langsung
+    triggerBlobDownload(compressedBytes, cleanName, "application/pdf");
+    if (typeof showToast === 'function') showToast("Kompresi selesai! File berhasil diperkecil.", "success");
+    resetPdfWorkspaces();
+  } catch (err) {
+    console.error("Gagal melakukan kompresi PDF secara lokal:", err);
+    if (typeof showToast === 'function') showToast("Gagal memproses kompresi dokumen PDF.", "error");
+  }
 }
 
 // --- LOGIKA GABUNG PDF (MERGE) ---
