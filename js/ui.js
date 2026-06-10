@@ -74,7 +74,7 @@ window.renderDynamicLinks = function() {
   const searchInput = document.getElementById('search-input');
   const q = searchInput ? searchInput.value.toLowerCase().trim() : '';
   let total = 0;
-  let counts = { semua: 0, utama: 0, verval: 0, keuangan: 0, guru: 0, kepegawaian: 0, pdf_tools: 5, ping_tools: 6, speedtest: 1, "2fa_auth": 0, portal_tka: 0, daerah: 0 };
+  let counts = { semua: 0, utama: 0, verval: 0, keuangan: 0, guru: 0, kepegawaian: 0, pdf_tools: 6, ping_tools: 6, speedtest: 1, "2fa_auth": 0, portal_tka: 0, daerah: 0 };
 
   if (!linksData || !Array.isArray(linksData)) {
     linksData = typeof defaultSeedLinks !== 'undefined' ? [...defaultSeedLinks] : [];
