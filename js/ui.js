@@ -120,12 +120,13 @@ window.renderDynamicLinks = function() {
         a.rel = "noopener";
         a.className = 'block p-4 sm:p-5 rounded-2xl bg-white dark:bg-slate-800 border border-slate-200/60 dark:border-slate-700 hover:border-blue-500 hover:shadow-lg transition-all group relative';
         const delBtn = !l.system ? `<button onclick="event.preventDefault(); event.stopPropagation(); deleteCustomLink('${l.id}')" class="absolute top-4 right-4 text-slate-300 hover:text-red-500 transition z-20 p-1"><i class="fa-solid fa-trash text-xs"></i></button>` : '';
+        // Perbaikan typo: kelas warna text-slate-505 telah diperbaiki ke text-slate-500
         a.innerHTML = `${delBtn}
           <div class="flex items-start gap-3 sm:gap-4">
             <div class="p-2.5 sm:p-3 rounded-xl bg-blue-50 dark:bg-blue-950/40 text-blue-600 group-hover:scale-110 transition flex-shrink-0"><i class="fa-solid ${l.icon || 'fa-globe'} text-lg sm:text-xl"></i></div>
             <div class="flex-1 pr-4 min-w-0">
               <h4 class="font-extrabold text-slate-900 dark:text-white text-xs sm:text-sm md:text-base group-hover:text-blue-600 flex items-center gap-1 truncate font-space">${l.title} <i class="fa-solid fa-arrow-up-right-from-square text-[9px] opacity-0 group-hover:opacity-100 transition"></i></h4>
-              <p class="text-[10px] sm:text-xs text-slate-505 mt-1.5 leading-relaxed break-words">${l.desc}</p>
+              <p class="text-[10px] sm:text-xs text-slate-500 dark:text-slate-400 mt-1.5 leading-relaxed break-words">${l.desc}</p>
             </div>
           </div>`;
         grid.appendChild(a);
@@ -154,6 +155,17 @@ window.selectCategory = function(cat) {
     pPdf.classList.add('hidden');
     pPing.classList.add('hidden');
     pSpeed.classList.add('hidden');
+
+    // --- SINKRONISASI CLEANUP OTOMATIS LAYANAN YANG TERBUKA DI LATAR BELAKANG ---
+    if (cat !== 'ping_tools' && typeof stopAutoPingInterval === 'function') {
+      stopAutoPingInterval();
+    }
+    if (cat !== 'speedtest' && typeof speedtestAbortController !== 'undefined' && speedtestAbortController) {
+      speedtestAbortController.abort();
+    }
+    if (cat !== '2fa_auth' && typeof isScanning !== 'undefined' && isScanning && typeof toggleQrScanner === 'function') {
+      toggleQrScanner();
+    }
 
     if (cat === '2fa_auth') {
       p2Fa.classList.remove('hidden');
@@ -546,7 +558,7 @@ window.renderTemplatesList = function() {
       <div class="p-3 border dark:border-slate-700 bg-slate-50 dark:bg-slate-900/60 rounded-xl flex justify-between items-start gap-2 animate-fade-in">
         <div class="truncate flex-1">
           <h5 class="text-xs font-bold truncate text-slate-800 dark:text-white">${t.name}</h5>
-          <p class="text-[10px] text-slate-500 truncate mt-0.5">${t.text}</p>
+          <p class="text-[10px] text-slate-505 truncate mt-0.5">${t.text}</p>
         </div>
         <div class="flex gap-1.5 flex-shrink-0">
           <button onclick="editTemplate('${t.id}')" class="text-blue-500 hover:text-blue-700 transition" title="Ubah"><i class="fa-solid fa-pen-to-square"></i></button>
