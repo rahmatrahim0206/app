@@ -51,6 +51,33 @@
     
     <!-- Link to Modular CSS -->
     <link rel="stylesheet" href="css/style.css" />
+
+    <!-- SOLUSI ANTI-FLICKER: Memblokir proses render layar PIN sebelum browser menggambar elemen DOM -->
+    <script>
+      (function() {
+        try {
+          const prefix = "dapohub-";
+          const sessionPin = sessionStorage.getItem(prefix + 'session-pin');
+          const sessionHash = sessionStorage.getItem(prefix + 'session-hash');
+          const lastActive = sessionStorage.getItem(prefix + 'last-active');
+          const isLocked = sessionStorage.getItem(prefix + 'session-locked') === 'true';
+          
+          if (sessionPin && sessionHash && lastActive && !isLocked) {
+            const now = Date.now();
+            const diffMinutes = (now - parseInt(lastActive)) / 60000;
+            // Jika sesi masih aktif (di bawah 15 menit), sembunyikan overlay PIN sejak awal parsing HTML
+            if (diffMinutes < 15) {
+              const style = document.createElement('style');
+              style.id = 'prevent-flicker-style';
+              style.innerHTML = '#master-pin-screen { display: none !important; }';
+              document.head.appendChild(style);
+            }
+          }
+        } catch (e) {
+          console.error("Kesalahan pra-pemeriksaan anti-flicker:", e);
+        }
+      })();
+    </script>
   </head>
   <body class="bg-slate-50 text-slate-800 dark:bg-slate-900 dark:text-slate-100 min-h-screen transition-colors duration-300 relative">
     
@@ -65,7 +92,7 @@
             <h1 class="text-sm sm:text-lg font-bold tracking-tight text-slate-900 dark:text-white flex items-center gap-1 font-space">
               DAPO-HUB <span class="bg-blue-100 text-blue-800 dark:bg-blue-950 dark:text-blue-200 text-[10px] px-1.5 py-0.5 rounded font-mono font-bold">Pro v5.0</span>
             </h1>
-            <p id="view-school-header" class="text-[9px] sm:text-xs text-slate-500 dark:text-slate-400 font-medium">Memuat nama sekolah...</p>
+            <p id="view-school-header" class="text-[9px] sm:text-xs text-slate-505 dark:text-slate-400 font-medium">Memuat nama sekolah...</p>
           </div>
         </div>
 
@@ -659,7 +686,7 @@
                 </div>
                 <div class="text-xs">
                   <h4 class="font-bold text-slate-800 dark:text-white" id="speedtest-integrity-title">Analisis Kelayakan Jaringan</h4>
-                  <p class="text-slate-500 dark:text-slate-400 mt-0.5 leading-relaxed" id="speedtest-integrity-desc">Mulai uji kecepatan jaringan untuk mendeteksi kelayakan sinkronisasi Dapodik dan server ANBK sekolah.</p>
+                  <p class="text-slate-500 dark:text-slate-400 mt-0.5 leading-relaxed" id="speedtest-integrity-desc">Mulai uji kecepatan jaringan untuk mendeteksi kelayakan sinkronisasi Dapodik and server ANBK sekolah.</p>
                 </div>
               </div>
 
