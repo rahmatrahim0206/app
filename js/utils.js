@@ -15,24 +15,6 @@ function copyText(textToCopy, successMessage) {
   }
 }
 
-// Fungsi Acak Kata Sandi Aman
-function generateSecurePassword() {
-  const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*()_+\";";
-  let pass = "";
-  for (let i = 0; i < 12; i++) {
-    pass += chars.charAt(Math.floor(Math.random() * chars.length));
-  }
-  const pwInput = document.getElementById('generated-password-input');
-  if (pwInput) pwInput.value = pass;
-}
-
-function copyGeneratedPassword() {
-  const pwInput = document.getElementById('generated-password-input');
-  if (pwInput && pwInput.value) {
-    copyText(pwInput.value, "Kata sandi aman berhasil disalin!");
-  }
-}
-
 // Pembaruan Jam & Hari WITA Aktif
 function updateClock() {
   const timeDisplay = document.getElementById('header-time');
