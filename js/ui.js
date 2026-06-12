@@ -61,20 +61,21 @@ window.renderDynamicLinks = function() {
   if (!wrapper) return;
   wrapper.innerHTML = '';
 
+  // Penyelarasan Kategori: Label portal_tka diperbarui ke "Asesmen" & Daerah diposisikan di atas Ruang Kerja PDF
   const catMap = {
     'utama': { title: 'Dapodik & Portal Utama', icon: 'fa-folder-open', color: 'text-blue-500' },
     'verval': { title: 'Verifikasi & Validasi (Verval)', icon: 'fa-shield-halved', color: 'text-emerald-500' },
     'keuangan': { title: 'Anggaran & Keuangan Sekolah', icon: 'fa-wallet', color: 'text-amber-500' },
     'guru': { title: 'Layanan Pendidik (GTK)', icon: 'fa-chalkboard-user', color: 'text-indigo-500' },
     'kepegawaian': { title: 'Layanan Kepegawaian (ASN)', icon: 'fa-id-card-clip', color: 'text-sky-500' },
-    'portal_tka': { title: 'Asesmen Nasional & Ujian (Portal TKA/ANBK)', icon: 'fa-laptop-code', color: 'text-rose-500' },
+    'portal_tka': { title: 'Asesmen', icon: 'fa-laptop-code', color: 'text-rose-500' },
     'daerah': { title: 'Portal Dinas & Daerah', icon: 'fa-city', color: 'text-purple-500' }
   };
 
   const searchInput = document.getElementById('search-input');
   const q = searchInput ? searchInput.value.toLowerCase().trim() : '';
   let total = 0;
-  let counts = { semua: 0, utama: 0, verval: 0, keuangan: 0, guru: 0, kepegawaian: 0, pdf_tools: 6, ping_tools: 6, speedtest: 1, "2fa_auth": 0, portal_tka: 0, daerah: 0 };
+  let counts = { semua: 0, utama: 0, verval: 0, keuangan: 0, guru: 0, kepegawaian: 0, portal_tka: 0, daerah: 0, pdf_tools: 6, ping_tools: 6, speedtest: 1, "2fa_auth": 0, whatsapp: 0 };
 
   if (!linksData || !Array.isArray(linksData)) {
     linksData = typeof defaultSeedLinks !== 'undefined' ? [...defaultSeedLinks] : [];
@@ -95,6 +96,7 @@ window.renderDynamicLinks = function() {
   });
   counts['semua'] = total;
   counts['2fa_auth'] = typeof authenticatorKeys !== 'undefined' ? authenticatorKeys.length : 0;
+  counts['whatsapp'] = typeof waTemplates !== 'undefined' ? waTemplates.length : 0;
 
   Object.keys(counts).forEach(k => {
     const b = document.getElementById(`badge-${k}`);
@@ -120,7 +122,6 @@ window.renderDynamicLinks = function() {
         a.rel = "noopener";
         a.className = 'block p-4 sm:p-5 rounded-2xl bg-white dark:bg-slate-800 border border-slate-200/60 dark:border-slate-700 hover:border-blue-500 hover:shadow-lg transition-all group relative';
         const delBtn = !l.system ? `<button onclick="event.preventDefault(); event.stopPropagation(); deleteCustomLink('${l.id}')" class="absolute top-4 right-4 text-slate-300 hover:text-red-500 transition z-20 p-1"><i class="fa-solid fa-trash text-xs"></i></button>` : '';
-        // Perbaikan typo: kelas warna text-slate-505 telah diperbaiki ke text-slate-500
         a.innerHTML = `${delBtn}
           <div class="flex items-start gap-3 sm:gap-4">
             <div class="p-2.5 sm:p-3 rounded-xl bg-blue-50 dark:bg-blue-950/40 text-blue-600 group-hover:scale-110 transition flex-shrink-0"><i class="fa-solid ${l.icon || 'fa-globe'} text-lg sm:text-xl"></i></div>
@@ -148,13 +149,15 @@ window.selectCategory = function(cat) {
   const pPdf = document.getElementById('panel-pdf-tools-wrapper');
   const pPing = document.getElementById('panel-ping-tools-wrapper');
   const pSpeed = document.getElementById('panel-speedtest-wrapper');
+  const pWa = document.getElementById('panel-whatsapp-wrapper');
   
-  if (p2Fa && pLinks && pPdf && pPing && pSpeed) {
+  if (p2Fa && pLinks && pPdf && pPing && pSpeed && pWa) {
     p2Fa.classList.add('hidden');
     pLinks.classList.add('hidden');
     pPdf.classList.add('hidden');
     pPing.classList.add('hidden');
     pSpeed.classList.add('hidden');
+    pWa.classList.add('hidden');
 
     // --- SINKRONISASI CLEANUP OTOMATIS LAYANAN YANG TERBUKA DI LATAR BELAKANG ---
     if (cat !== 'ping_tools' && typeof stopAutoPingInterval === 'function') {
@@ -179,6 +182,9 @@ window.selectCategory = function(cat) {
     } else if (cat === 'speedtest') {
       pSpeed.classList.remove('hidden');
       if (typeof initSpeedtestWorkspace === 'function') initSpeedtestWorkspace();
+    } else if (cat === 'whatsapp') {
+      pWa.classList.remove('hidden');
+      if (typeof populateWaSelect === 'function') populateWaSelect();
     } else {
       pLinks.classList.remove('hidden');
     }
@@ -205,7 +211,7 @@ window.filterLinksOrKeys = function() {
   
   const noRes = document.getElementById('no-results-message');
   
-  if (activeCategory === '2fa_auth' || activeCategory === 'pdf_tools' || activeCategory === 'ping_tools' || activeCategory === 'speedtest') {
+  if (activeCategory === '2fa_auth' || activeCategory === 'pdf_tools' || activeCategory === 'ping_tools' || activeCategory === 'speedtest' || activeCategory === 'whatsapp') {
     if (noRes) noRes.classList.add('hidden');
     if (activeCategory === '2fa_auth' && typeof renderAuthenticatorKeys === 'function') renderAuthenticatorKeys();
   } else {
@@ -416,7 +422,7 @@ window.showDateMemos = function(day, month, year) {
   if (filteredMemos.length === 0) {
     displayEl.innerHTML = `<p class="text-[10px] text-slate-400 italic"><i class="fa-solid fa-info-circle text-blue-400"></i> Tidak ada memo pada tanggal ${day} ${names[month]} ${year}.</p>`;
   } else {
-    let listHtml = `<div class="space-y-2"><p class="text-[10px] text-slate-500 font-black uppercase tracking-wide">📅 Memo ${day} ${names[month]}:</p>`;
+    let listHtml = `<div class="space-y-2"><p class="text-[10px] text-slate-505 font-black uppercase tracking-wide">📅 Memo ${day} ${names[month]}:</p>`;
     filteredMemos.forEach(n => {
       listHtml += `
         <div class="p-2 bg-amber-50/50 dark:bg-amber-950/20 border border-amber-100 dark:border-amber-900/30 rounded-xl">
