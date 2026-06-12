@@ -81,11 +81,21 @@ function updateOnlineStatus(isOnline) {
 
 // Detektor Kunci Layar Otomatis
 function resetIdleTimer() { 
-  if (!sessionLocked) idleTimeCounter = 0; 
+  if (!sessionLocked) {
+    idleTimeCounter = 0; 
+    // Perbarui penunjuk aktivitas terakhir di sessionStorage agar tidak kedaluwarsa setelah refresh
+    if (typeof CONFIG !== 'undefined') {
+      sessionStorage.setItem(CONFIG.STORAGE_PREFIX + 'last-active', Date.now().toString());
+    }
+  }
 }
 
 function lockUserSession() {
   sessionLocked = true;
+  // Simpan status lock ke sessionStorage
+  if (typeof CONFIG !== 'undefined') {
+    sessionStorage.setItem(CONFIG.STORAGE_PREFIX + 'session-locked', 'true');
+  }
   const screen = document.getElementById('idle-lock-screen');
   const card = document.getElementById('lock-card');
   if (screen && card) {
@@ -98,6 +108,11 @@ function lockUserSession() {
 function unlockSession() {
   sessionLocked = false;
   idleTimeCounter = 0;
+  // Bersihkan status lock dan perbarui waktu aktivitas terakhir
+  if (typeof CONFIG !== 'undefined') {
+    sessionStorage.removeItem(CONFIG.STORAGE_PREFIX + 'session-locked');
+    sessionStorage.setItem(CONFIG.STORAGE_PREFIX + 'last-active', Date.now().toString());
+  }
   const screen = document.getElementById('idle-lock-screen');
   const card = document.getElementById('lock-card');
   if (screen && card) {
@@ -110,9 +125,9 @@ function unlockSession() {
   }
 }
 
-// --- PERBAIKAN SISTEM PROTEKSI & SALIN (COPY-PASTE) ---
+// --- SISTEM PROTEKSI & PENANGANAN PINTASAN KEYBOARD ---
 
-// 1. Mencegah Klik Kanan (Context Menu) di Seluruh Area Aplikasi Secara Mutlak (Termasuk INPUT dan TEXTAREA)
+// 1. Mencegah Klik Kanan Secara Mutlak (Kembali ke Setelan Awal Tanpa Pengecualian)
 document.addEventListener('contextmenu', function(e) {
   e.preventDefault();
   if (typeof showToast === 'function') {
@@ -120,7 +135,7 @@ document.addEventListener('contextmenu', function(e) {
   }
 });
 
-// 2. SISTEM MONITOR TOMBOL PINTAS: Memblokir DevTools/Inspeksi, Mengizinkan Ctrl+C (Menyalin) & Ctrl+D (Bookmark/Pengingat Aman)
+// 2. SISTEM MONITOR TOMBOL PINTAS: Memblokir DevTools/Inspeksi, Khusus Mengizinkan dan Menampilkan Toast pada Ctrl+C dan Ctrl+D
 document.addEventListener('keydown', function(e) {
   // A. Blokir tombol F12 (Developer Tools)
   if (e.keyCode === 123) {
@@ -157,9 +172,8 @@ document.addEventListener('keydown', function(e) {
     return false;
   }
 
-  // F. Izinkan Ctrl+C Biasa (Menyalin Teks)
+  // F. Menangani Pintasan Ctrl+C (Menyalin Teks dengan Notifikasi Toast)
   if (e.ctrlKey && !e.shiftKey && e.keyCode === 67) {
-    // Membiarkan peramban menyalin data clipboard secara normal dan aman
     setTimeout(() => {
       if (typeof showToast === 'function') {
         showToast("📋 Teks berhasil disalin ke papan klip!", "success");
@@ -167,10 +181,10 @@ document.addEventListener('keydown', function(e) {
     }, 50);
   }
   
-  // G. Izinkan Ctrl+D (Pintasan Bookmark / Duplikasi)
+  // G. Menangani Pintasan Ctrl+D (Pemberitahuan Pintasan Terpantau Aman)
   if (e.ctrlKey && e.keyCode === 68) {
     if (typeof showToast === 'function') {
-      showToast("🔒 Pintasan Ctrl+D terpantau aman oleh sistem.", "warning");
+      showToast("🔒 Pintasan Ctrl+D (Bookmark/Aksi) terpantau aman oleh sistem.", "warning");
     }
   }
 });
