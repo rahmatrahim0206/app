@@ -85,16 +85,23 @@ function importBackupData(e) {
   } 
 }
 
-// Prosedur Reset Darurat
+// Prosedur Reset Darurat (DIPERBAIKI: Mengosongkan data localStorage dan sessionStorage)
 function triggerEmergencyReset() {
   if (typeof showCustomConfirm === 'function') {
     showCustomConfirm(
       "Lakukan Atur Ulang Darurat?", 
       "PERINGATAN SENSITIF: Tindakan ini akan menghapus seluruh data Anda secara permanen dari browser ini, termasuk Master PIN, kunci keamanan 2FA, catatan memo, agenda, serta tautan kustom. Sistem akan dimuat ulang ke pengaturan awal pabrik.", 
       () => {
+        // 1. Bersihkan database permanen di localStorage
         const keysToRemove = ['links', 'agendas', 'notes', 'auth-keys', 'wa-templates', 'master-pin'];
         keysToRemove.forEach(key => {
           localStorage.removeItem(CONFIG.STORAGE_PREFIX + key);
+        });
+
+        // 2. Bersihkan penampung sesi sementara di sessionStorage agar tidak membypass otentikasi setelah reload
+        const sessionKeysToRemove = ['session-pin', 'session-hash', 'last-active', 'session-locked'];
+        sessionKeysToRemove.forEach(key => {
+          sessionStorage.removeItem(CONFIG.STORAGE_PREFIX + key);
         });
         
         if (typeof updateClock === 'function') updateClock();
