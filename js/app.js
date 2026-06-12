@@ -87,6 +87,13 @@ function handlePinSubmit() {
     if (!storedHash) {
       const pinHash = CryptoJS.SHA256(enteredPin).toString();
       localStorage.setItem(CONFIG.STORAGE_PREFIX + 'master-pin', pinHash);
+      
+      // Amankan sesi aktif sementara ke sessionStorage agar tahan saat halaman direfresh
+      sessionStorage.setItem(CONFIG.STORAGE_PREFIX + 'session-pin', enteredPin);
+      sessionStorage.setItem(CONFIG.STORAGE_PREFIX + 'session-hash', pinHash);
+      sessionStorage.setItem(CONFIG.STORAGE_PREFIX + 'last-active', Date.now().toString());
+      sessionStorage.removeItem(CONFIG.STORAGE_PREFIX + 'session-locked');
+
       globalMasterPin = enteredPin;
       CONFIG.SECURE_PASS_KEY = "key-" + pinHash;
       showToast("Master PIN berhasil didaftarkan!", "success");
@@ -94,6 +101,12 @@ function handlePinSubmit() {
     } else {
       const pinHash = CryptoJS.SHA256(enteredPin).toString();
       if (storedHash === pinHash) {
+        // Amankan sesi aktif sementara ke sessionStorage agar tahan saat halaman direfresh
+        sessionStorage.setItem(CONFIG.STORAGE_PREFIX + 'session-pin', enteredPin);
+        sessionStorage.setItem(CONFIG.STORAGE_PREFIX + 'session-hash', pinHash);
+        sessionStorage.setItem(CONFIG.STORAGE_PREFIX + 'last-active', Date.now().toString());
+        sessionStorage.removeItem(CONFIG.STORAGE_PREFIX + 'session-locked');
+
         globalMasterPin = enteredPin;
         CONFIG.SECURE_PASS_KEY = "key-" + pinHash;
         showToast("Sesi kerja berhasil dibuka!", "success");
@@ -123,6 +136,7 @@ function bootstrapApplication() {
   if (!linksData || linksData.length === 0) {
     linksData = typeof defaultSeedLinks !== 'undefined' ? [...defaultSeedLinks] : [];
     
+    // Dikembalikan ke data/default-links.json sesuai dengan struktur direktori proyek Anda
     fetch('data/default-links.json')
       .then(res => res.json())
       .then(data => {
@@ -187,6 +201,38 @@ window.addEventListener('DOMContentLoaded', () => {
   ['mousemove', 'keypress', 'click', 'scroll', 'touchstart'].forEach(e => {
     document.addEventListener(e, resetIdleTimer);
   });
+
+  // --- PEMULIHAN SESI OTOMATIS SAAT REFRESH ---
+  const sessionPin = sessionStorage.getItem(CONFIG.STORAGE_PREFIX + 'session-pin');
+  const sessionHash = sessionStorage.getItem(CONFIG.STORAGE_PREFIX + 'session-hash');
+  const lastActiveTime = sessionStorage.getItem(CONFIG.STORAGE_PREFIX + 'last-active');
+  const isLocked = sessionStorage.getItem(CONFIG.STORAGE_PREFIX + 'session-locked') === 'true';
+
+  if (sessionPin && sessionHash && lastActiveTime) {
+    const now = Date.now();
+    const diffMinutes = (now - parseInt(lastActiveTime)) / 60000;
+    
+    // Jika durasi idle sejak aktivitas terakhir masih di bawah batas, bypass login
+    if (diffMinutes < CONFIG.IDLE_LIMIT_MINUTES) {
+      globalMasterPin = sessionPin;
+      CONFIG.SECURE_PASS_KEY = "key-" + sessionHash;
+      bootstrapApplication();
+      
+      // Jika refresh dilakukan saat layar sedang terkunci idle, tetap kunci layarnya
+      if (isLocked) {
+        if (typeof lockUserSession === 'function') lockUserSession();
+      }
+      
+      // Lanjutkan interval jam
+      setInterval(updateClock, 1000);
+      return; // Selesai, lewati pemuatan input PIN awal
+    } else {
+      // Jika sudah kedaluwarsa, bersihkan sesi sementara
+      sessionStorage.removeItem(CONFIG.STORAGE_PREFIX + 'session-pin');
+      sessionStorage.removeItem(CONFIG.STORAGE_PREFIX + 'session-hash');
+      sessionStorage.removeItem(CONFIG.STORAGE_PREFIX + 'session-locked');
+    }
+  }
 
   setInterval(() => {
     if (!sessionLocked && ++idleTimeCounter >= CONFIG.IDLE_LIMIT_MINUTES) lockUserSession();
