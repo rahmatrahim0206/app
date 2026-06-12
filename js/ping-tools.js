@@ -100,12 +100,9 @@ async function measureLatencyToEndpoint(srv) {
     if (err.name === 'AbortError') {
       updateServerCardStatus(srv.id, "timeout", null);
     } else {
-      const duration = Math.round(performance.now() - startTime);
-      if (duration < 3000) {
-        updateServerCardStatus(srv.id, "success", duration); 
-      } else {
-        updateServerCardStatus(srv.id, "error", null);
-      }
+      // Perbaikan Bug: Jika fetch gagal langsung atau dibatalkan oleh aturan DNS/SSL error, maka server benar-benar down.
+      // Kami tidak lagi mengizinkan bypass "success" otomatis pada RTT di bawah 3 detik jika fetch melempar error.
+      updateServerCardStatus(srv.id, "error", null);
     }
   }
 }
