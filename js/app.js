@@ -36,11 +36,13 @@ var idleTimeCounter = 0;
 var sessionLocked = false;
 var globalMasterPin = ""; // Penampung PIN global aman
 
-// Template Baku Siaran WhatsApp
+// Template Baku Siaran WhatsApp (Termasuk penambahan template baru PIP Ruang Kesiswaan)
 var defaultWaTemplates = [
   { id: "rapor", name: "1. Pengumpulan Nilai E-Rapor", text: `Assalamu'alaikum Wr. Wb. Yth. Bapak/Ibu Guru {nama},\n\nDengan hormat, mohon bantuannya untuk segera melakukan pengisian dan sinkronisasi Nilai Rapor Kelas Anda pada aplikasi E-Rapor ${CONFIG.SCHOOL_NAME_SHORT} sebelum batas waktu pengumpulan.\n\nAtas dedikasi, kerja sama, dan perhatian Bapak/Ibu, kami ucapkan terima kasih.\n\nHormat kami,\nOperator Dapodik & IT` },
   { id: "data", name: "2. Verifikasi NIK & Berkas Dapodik", text: `Assalamu'alaikum Wr. Wb. Yth. Bapak/Ibu {nama},\n\nSehubungan dengan proses pemutakhiran data berkala, mohon kesediaan Bapak/Ibu untuk memeriksa kembali kesesuaian Nomor Induk Kependudukan (NIK) serta kelengkapan riwayat kerja di portal Dapodik.\n\nJika terdapat kekeliruan data, silakan menghubungi Operator Sekolah untuk perbaikan.\n\nTerima kasih,\nOperator Dapodik & IT` },
-  { id: "belajar", name: "3. Aktivasi Akun Belajar.id", text: `Yth. Bapak/Ibu Guru {nama},\n\nMohon bantuannya untuk melakukan aktivasi akun pembelajaran Belajar.id Anda guna kelancaran akses ke platform Merdeka Mengajar (PMM), Rapor Pendidikan, dan administrasi kementerian lainnya.\n\nJika membutuhkan bantuan dalam pemulihan kata sandi, silakan menghubungi tim IT sekolah.\n\nSalam hormat,\nOperator Dapodik & IT` }
+  { id: "belajar", name: "3. Aktivasi Akun Belajar.id", text: `Yth. Bapak/Ibu Guru {nama},\n\nMohon bantuannya untuk melakukan aktivasi akun pembelajaran Belajar.id Anda guna kelancaran akses ke platform Merdeka Mengajar (PMM), Rapor Pendidikan, dan administrasi kementerian lainnya.\n\nJika membutuhkan bantuan dalam pemulihan kata sandi, silakan menghubungi tim IT sekolah.\n\nSalam hormat,\nOperator Dapodik & IT` },
+  { id: "pip_aktivasi", name: "4. Aktivasi Rekening Bantuan PIP", text: `Assalamu'alaikum Wr. Wb. Yth. Orang Tua/Wali dari {nama},\n\nDiberitahukan bahwa putra/putri Anda ditetapkan sebagai penerima bantuan PIP. Mohon segera melakukan aktivasi rekening simpanan pelajar di bank penyalur resmi.\n\nSetelah melakukan aktivasi, harap membawa fotokopi bukti aktivasi ke Ruang Kesiswaan sekolah untuk dilakukan verifikasi dan validasi data.\n\nTerima kasih atas perhatian dan kerja samanya.\n\nHormat kami,\nTim PIP & Operator Sekolah` },
+  { id: "pip_pencairan", name: "5. Pengumpulan Berkas Pencairan PIP", text: `Assalamu'alaikum Wr. Wb. Yth. Orang Tua/Wali dari {nama},\n\nBagi siswa yang telah melakukan pencairan dana Program Indonesia Pintar (PIP), mohon bantuannya untuk segera mengumpulkan berkas fotokopi buku tabungan halaman depan dan halaman mutasi transaksi pencairan terakhir ke Ruang Kesiswaan.\n\nBerkas tersebut sangat diperlukan oleh sekolah untuk proses pelaporan realisasi pencairan pada sistem Sipintar PIP.\n\nAtas perhatian Bapak/Ibu, kami ucapkan terima kasih.\n\nHormat kami,\nTim PIP & Operator Sekolah` }
 ];
 
 function renderAll() {
