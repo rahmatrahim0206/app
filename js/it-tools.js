@@ -164,7 +164,8 @@ async function runDnsLookup() {
     `${domain.padEnd(35, ' ')} 3600    IN    A     <span class="text-white font-bold">${domainData.a}</span>`,
     ``,
     `<span class="text-emerald-500">;; AUTHORITY SECTION (NS Records):</span>`,
-    domainData.ns.split('\n').map(ns => `${domain.padEnd(35, ' ')} 86400   IN    NS    ${ns}`).join('\n'),
+    // Diperbaiki: Menggunakan pemisahan dan penggabungan dengan tag <br> agar baris NS terender terpisah di HTML
+    domainData.ns.split('\n').map(ns => `${domain.padEnd(35, ' ')} 86400   IN    NS    ${ns}`).join('<br>'),
     ``,
     `<span class="text-emerald-500">;; MAIL EXCHANGE SECTION (MX Records):</span>`,
     `${domain.padEnd(35, ' ')} 14400   IN    MX    ${domainData.mx}`,
