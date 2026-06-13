@@ -138,7 +138,8 @@ async function runDnsLookup() {
   }
 
   resultsBox.classList.remove('hidden');
-  consoleOut.innerHTML = `<span class="text-blue-400">root@dapohub-spentig:~#</span> dig ${domain} +nocookie +nocmd +noquestion +nostats<br><span class="text-slate-400">; Mengontak server DNS utama... silakan tunggu.</span><br><br><span class="animate-pulse text-amber-500">; QUERYING NAMESERVERS...</span>`;
+  // Diperbaiki: Mengganti spentig dengan portal
+  consoleOut.innerHTML = `<span class="text-blue-400">root@dapohub-portal:~#</span> dig ${domain} +nocookie +nocmd +noquestion +nostats<br><span class="text-slate-400">; Mengontak server DNS utama... silakan tunggu.</span><br><br><span class="animate-pulse text-amber-500">; QUERYING NAMESERVERS...</span>`;
 
   await new Promise(r => setTimeout(r, 1200));
 
@@ -156,21 +157,21 @@ async function runDnsLookup() {
     mx: "10 mail.domain-kustom.sch.id"
   };
 
+  // Diperbaiki: Mengganti spentig dengan portal secara konsisten
   const lines = [
-    `<span class="text-blue-400">root@dapohub-spentig:~#</span> dig ${domain} +nocookie +nocmd +noquestion +nostats`,
+    `<span class="text-blue-400">root@dapohub-portal:~#</span> dig ${domain} +nocookie +nocmd +noquestion +nostats`,
     `<span class="text-slate-500">; Resolving DNS records for ${domain}...</span>`,
     ``,
     `<span class="text-emerald-500">;; ANSWER SECTION (A Record):</span>`,
     `${domain.padEnd(35, ' ')} 3600    IN    A     <span class="text-white font-bold">${domainData.a}</span>`,
     ``,
     `<span class="text-emerald-500">;; AUTHORITY SECTION (NS Records):</span>`,
-    // Diperbaiki: Menggunakan pemisahan dan penggabungan dengan tag <br> agar baris NS terender terpisah di HTML
     domainData.ns.split('\n').map(ns => `${domain.padEnd(35, ' ')} 86400   IN    NS    ${ns}`).join('<br>'),
     ``,
     `<span class="text-emerald-500">;; MAIL EXCHANGE SECTION (MX Records):</span>`,
     `${domain.padEnd(35, ' ')} 14400   IN    MX    ${domainData.mx}`,
     ``,
-    `<span class="text-blue-400">root@dapohub-spentig:~#</span> ping ${domain} -c 3`,
+    `<span class="text-blue-400">root@dapohub-portal:~#</span> ping ${domain} -c 3`,
     `PING ${domain} (${domainData.a}) 56(84) bytes of data.`,
     `64 bytes from ${domainData.a}: icmp_seq=1 ttl=56 time=${Math.floor(Math.random() * 80) + 12} ms`,
     `64 bytes from ${domainData.a}: icmp_seq=2 ttl=56 time=${Math.floor(Math.random() * 80) + 12} ms`,
