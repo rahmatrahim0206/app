@@ -223,7 +223,7 @@ window.clearSearchInput = function() {
   filterLinksOrKeys(); 
 }
 
-// --- SISTEM PANEL TAB KOTAK 1 (KALENDER & BUKU SAKU MEMO) ---
+// --- SISTEM PANEL TAB KOTAK 1 (KALENDER & MEMO CATATAN) ---
 window.switchCalendarMemoTab = function(t) {
   const calendarBtn = document.getElementById('btn-tab-calendar');
   const memoBtn = document.getElementById('btn-tab-memo');
@@ -418,9 +418,9 @@ window.showDateMemos = function(day, month, year) {
   if (!displayEl) return;
   
   if (filteredMemos.length === 0) {
-    displayEl.innerHTML = `<p class="text-[10px] text-slate-400 italic"><i class="fa-solid fa-info-circle text-blue-400"></i> Tidak ada memo pada tanggal ${day} ${names[month]} ${year}.</p>`;
+    displayEl.innerHTML = `<p class="text-[10px] text-slate-400 italic"><i class="fa-solid fa-info-circle text-blue-400"></i> Tidak ada catatan pada tanggal ${day} ${names[month]} ${year}.</p>`;
   } else {
-    let listHtml = `<div class="space-y-2"><p class="text-[10px] text-slate-500 font-black uppercase tracking-wide">📅 Memo ${day} ${names[month]}:</p>`;
+    let listHtml = `<div class="space-y-2"><p class="text-[10px] text-slate-500 font-black uppercase tracking-wide">📅 Catatan ${day} ${names[month]}:</p>`;
     filteredMemos.forEach(n => {
       listHtml += `
         <div class="p-2 bg-amber-50/50 dark:bg-amber-950/20 border border-amber-100 dark:border-amber-900/30 rounded-xl">
@@ -437,7 +437,7 @@ window.showDateMemos = function(day, month, year) {
 window.prevMonth = function() { currentDateObj.setMonth(currentDateObj.getMonth()-1); initCalendar(); }
 window.nextMonth = function() { currentDateObj.setMonth(currentDateObj.getMonth()+1); initCalendar(); }
 
-// --- TAB ASISTEN: BUKU SAKU MEMO ---
+// --- TAB ASISTEN: BUKU SAKU MEMO (Diubah menjadi Catatan) ---
 window.renderQuickNotes = function() {
   const c = document.getElementById('quick-notes-list');
   if(!c) return;
@@ -495,9 +495,9 @@ window.addQuickNote = function() {
     if(tEl) tEl.value = '';
     if(dEl) dEl.value = '';
     if(bEl) bEl.value = '';
-    showToast("Memo catatan berhasil disimpan!");
+    showToast("Catatan berhasil disimpan!");
   } else {
-    showToast("Mohon lengkapi seluruh isian memo!", "warning");
+    showToast("Mohon lengkapi seluruh isian catatan!", "warning");
   }
 }
 
@@ -562,7 +562,6 @@ window.renderTemplatesList = function() {
       <div class="p-3 border dark:border-slate-700 bg-slate-50 dark:bg-slate-900/60 rounded-xl flex justify-between items-start gap-2 animate-fade-in">
         <div class="truncate flex-1">
           <h5 class="text-xs font-bold truncate text-slate-800 dark:text-white">${t.name}</h5>
-          <!-- Perbaikan Typo: text-slate-505 diselaraskan menjadi text-slate-500 -->
           <p class="text-[10px] text-slate-500 dark:text-slate-400 truncate mt-0.5">${t.text}</p>
         </div>
         <div class="flex gap-1.5 flex-shrink-0">
@@ -711,7 +710,8 @@ window.startCutOffCountdown = function() {
   setInterval(updateCountdown, 1000);
 }
 
-const manifestJsonText = `{\n  "name": "DAPO-HUB SPENTIG",\n  "short_name": "DAPO-HUB",\n  "description": "Portal Integrasi Operator Dapodik & IT SMP Negeri 3 Makassar",\n  "start_url": "index.html",\n  "display": "standalone",\n  "background_color": "#f8fafc",\n  "theme_color": "#2563eb",\n  "icons": [\n    {\n      "src": "https://cdn-icons-png.flaticon.com/512/2210/2210143.png",\n      "sizes": "512x512",\n      "type": "image/png"\n    }\n  ]\n}`;
+// Diperbaiki: Menghapus spentig dari manifestJsonText demi konsistensi arsitektur kode
+const manifestJsonText = `{\n  "name": "DAPO-HUB Portal",\n  "short_name": "DAPO-HUB",\n  "description": "Portal Integrasi Operator Dapodik & IT",\n  "start_url": "index.html",\n  "display": "standalone",\n  "background_color": "#f8fafc",\n  "theme_color": "#2563eb",\n  "icons": [\n    {\n      "src": "https://cdn-icons-png.flaticon.com/512/2210/2210143.png",\n      "sizes": "512x512",\n      "type": "image/png"\n    }\n  ]\n}`;
 
 const serviceWorkerJsText = `
   const CACHE_NAME = 'dapohub-cache-v3';
