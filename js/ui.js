@@ -61,7 +61,6 @@ window.renderDynamicLinks = function() {
   if (!wrapper) return;
   wrapper.innerHTML = '';
 
-  // Penyelarasan Kategori: Label portal_tka diperbarui ke "Asesmen" & Daerah diposisikan di atas Ruang Kerja PDF
   const catMap = {
     'utama': { title: 'Dapodik & Portal Utama', icon: 'fa-folder-open', color: 'text-blue-500' },
     'verval': { title: 'Verifikasi & Validasi (Verval)', icon: 'fa-shield-halved', color: 'text-emerald-500' },
@@ -75,13 +74,11 @@ window.renderDynamicLinks = function() {
   const searchInput = document.getElementById('search-input');
   const q = searchInput ? searchInput.value.toLowerCase().trim() : '';
   let total = 0;
-  let counts = { semua: 0, utama: 0, verval: 0, keuangan: 0, guru: 0, kepegawaian: 0, portal_tka: 0, daerah: 0, pdf_tools: 6, ping_tools: 6, speedtest: 1, "2fa_auth": 0, whatsapp: 0 };
+  let counts = { semua: 0, utama: 0, verval: 0, keuangan: 0, guru: 0, kepegawaian: 0, portal_tka: 0, daerah: 0, pdf_tools: 6, ping_tools: 6, speedtest: 1, "2fa_auth": 0, whatsapp: 0, it_tools: 4 };
 
   if (!linksData || !Array.isArray(linksData)) {
     linksData = typeof defaultSeedLinks !== 'undefined' ? [...defaultSeedLinks] : [];
   }
-
-  // LOGIKA MIGRASI KATEGORI LAMA 'ujian' TELAH DIHAPUS DARI SINI KARENA SUDAH DIOPTIMASI DI js/app.js (BOOTSTRAP)
 
   linksData.forEach(l => {
     if (l.title.toLowerCase().includes(q) || l.desc.toLowerCase().includes(q)) {
@@ -117,7 +114,6 @@ window.renderDynamicLinks = function() {
         a.rel = "noopener";
         a.className = 'block p-4 sm:p-5 rounded-2xl bg-white dark:bg-slate-800 border border-slate-200/60 dark:border-slate-700 hover:border-blue-500 hover:shadow-lg transition-all group relative';
         const delBtn = !l.system ? `<button onclick="event.preventDefault(); event.stopPropagation(); deleteCustomLink('${l.id}')" class="absolute top-4 right-4 text-slate-300 hover:text-red-500 transition z-20 p-1"><i class="fa-solid fa-trash text-xs"></i></button>` : '';
-        // Perbaikan typo kelas text-slate-505 ke kelas standar text-slate-500 dark:text-slate-400
         a.innerHTML = `${delBtn}
           <div class="flex items-start gap-3 sm:gap-4">
             <div class="p-2.5 sm:p-3 rounded-xl bg-blue-50 dark:bg-blue-950/40 text-blue-600 group-hover:scale-110 transition flex-shrink-0"><i class="fa-solid ${l.icon || 'fa-globe'} text-lg sm:text-xl"></i></div>
@@ -146,14 +142,16 @@ window.selectCategory = function(cat) {
   const pPing = document.getElementById('panel-ping-tools-wrapper');
   const pSpeed = document.getElementById('panel-speedtest-wrapper');
   const pWa = document.getElementById('panel-whatsapp-wrapper');
+  const pIt = document.getElementById('panel-it-tools-wrapper');
   
-  if (p2Fa && pLinks && pPdf && pPing && pSpeed && pWa) {
+  if (p2Fa && pLinks && pPdf && pPing && pSpeed && pWa && pIt) {
     p2Fa.classList.add('hidden');
     pLinks.classList.add('hidden');
     pPdf.classList.add('hidden');
     pPing.classList.add('hidden');
     pSpeed.classList.add('hidden');
     pWa.classList.add('hidden');
+    pIt.classList.add('hidden');
 
     // --- SINKRONISASI CLEANUP OTOMATIS LAYANAN YANG TERBUKA DI LATAR BELAKANG ---
     if (cat !== 'ping_tools' && typeof stopAutoPingInterval === 'function') {
@@ -181,6 +179,9 @@ window.selectCategory = function(cat) {
     } else if (cat === 'whatsapp') {
       pWa.classList.remove('hidden');
       if (typeof populateWaSelect === 'function') populateWaSelect();
+    } else if (cat === 'it_tools') {
+      pIt.classList.remove('hidden');
+      if (typeof initItToolsWorkspace === 'function') initItToolsWorkspace();
     } else {
       pLinks.className = "space-y-6";
       pLinks.classList.remove('hidden');
@@ -208,7 +209,7 @@ window.filterLinksOrKeys = function() {
   
   const noRes = document.getElementById('no-results-message');
   
-  if (activeCategory === '2fa_auth' || activeCategory === 'pdf_tools' || activeCategory === 'ping_tools' || activeCategory === 'speedtest' || activeCategory === 'whatsapp') {
+  if (activeCategory === '2fa_auth' || activeCategory === 'pdf_tools' || activeCategory === 'ping_tools' || activeCategory === 'speedtest' || activeCategory === 'whatsapp' || activeCategory === 'it_tools') {
     if (noRes) noRes.classList.add('hidden');
     if (activeCategory === '2fa_auth' && typeof renderAuthenticatorKeys === 'function') renderAuthenticatorKeys();
   } else {
@@ -419,7 +420,7 @@ window.showDateMemos = function(day, month, year) {
   if (filteredMemos.length === 0) {
     displayEl.innerHTML = `<p class="text-[10px] text-slate-400 italic"><i class="fa-solid fa-info-circle text-blue-400"></i> Tidak ada memo pada tanggal ${day} ${names[month]} ${year}.</p>`;
   } else {
-    let listHtml = `<div class="space-y-2"><p class="text-[10px] text-slate-505 font-black uppercase tracking-wide">📅 Memo ${day} ${names[month]}:</p>`;
+    let listHtml = `<div class="space-y-2"><p class="text-[10px] text-slate-500 font-black uppercase tracking-wide">📅 Memo ${day} ${names[month]}:</p>`;
     filteredMemos.forEach(n => {
       listHtml += `
         <div class="p-2 bg-amber-50/50 dark:bg-amber-950/20 border border-amber-100 dark:border-amber-900/30 rounded-xl">
@@ -561,7 +562,8 @@ window.renderTemplatesList = function() {
       <div class="p-3 border dark:border-slate-700 bg-slate-50 dark:bg-slate-900/60 rounded-xl flex justify-between items-start gap-2 animate-fade-in">
         <div class="truncate flex-1">
           <h5 class="text-xs font-bold truncate text-slate-800 dark:text-white">${t.name}</h5>
-          <p class="text-[10px] text-slate-505 truncate mt-0.5">${t.text}</p>
+          <!-- Perbaikan Typo: text-slate-505 diselaraskan menjadi text-slate-500 -->
+          <p class="text-[10px] text-slate-500 dark:text-slate-400 truncate mt-0.5">${t.text}</p>
         </div>
         <div class="flex gap-1.5 flex-shrink-0">
           <button onclick="editTemplate('${t.id}')" class="text-blue-500 hover:text-blue-700 transition" title="Ubah"><i class="fa-solid fa-pen-to-square"></i></button>
@@ -713,31 +715,4 @@ const manifestJsonText = `{\n  "name": "DAPO-HUB SPENTIG",\n  "short_name": "DAP
 
 const serviceWorkerJsText = `
   const CACHE_NAME = 'dapohub-cache-v3';
-  const ASSETS_TO_CACHE = [
-    './',
-    './index.html',
-    './manifest.json',
-    './css/style.css',
-    './js/utils.js',
-    './js/storage.js',
-    './js/otp.js',
-    './js/links.js',
-    './js/pdf-tools.js',
-    './js/ping-tools.js',
-    './js/speedtest.js',
-    './js/ui.js',
-    './js/app.js',
-    'https://cdn.tailwindcss.com',
-    'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css',
-    'https://cdnjs.cloudflare.com/ajax/libs/html5-qrcode/2.3.8/html5-qrcode.min.js',
-    'https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.2.0/crypto-js.min.js',
-    'https://unpkg.com/pdf-lib@1.17.1/dist/pdf-lib.min.js',
-    'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.min.js'
-  ];
-  self.addEventListener('install', (e) => e.waitUntil(caches.open(CACHE_NAME).then((c) => c.addAll(ASSETS_TO_CACHE))));
-  self.addEventListener('activate', (e) => e.waitUntil(caches.keys().then((keys) => Promise.all(keys.filter(k => k !== CACHE_NAME).map(k => caches.delete(k))))));
-  self.addEventListener('fetch', (e) => {
-    if (!e.request.url.startsWith('http')) return;
-    e.respondWith(caches.match(e.request).then((r) => r || fetch(e.request).catch(() => caches.match('./index.html'))));
-  });
-`;
+  const ASSETS_TO_CACHE = [\n    './',\n    './index.html',\n    './manifest.json',\n    './css/style.css',\n    './js/utils.js',\n    './js/storage.js',\n    './js/otp.js',\n    './js/links.js',\n    './js/pdf-tools.js',\n    './js/ping-tools.js',\n    './js/speedtest.js',\n    './js/it-tools.js',\n    './js/ui.js',\n    './js/app.js',\n    'https://cdn.tailwindcss.com',\n    'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css',\n    'https://cdnjs.cloudflare.com/ajax/libs/html5-qrcode/2.3.8/html5-qrcode.min.js',\n    'https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.2.0/crypto-js.min.js',\n    'https://unpkg.com/pdf-lib@1.17.1/dist/pdf-lib.min.js',\n    'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.min.js'\n  ];\n  self.addEventListener('install', (e) => e.waitUntil(caches.open(CACHE_NAME).then((c) => c.addAll(ASSETS_TO_CACHE))));\n  self.addEventListener('activate', (e) => e.waitUntil(caches.keys().then((keys) => Promise.all(keys.filter(k => k !== CACHE_NAME).map(k => caches.delete(k))))));\n  self.addEventListener('fetch', (e) => {\n    if (!e.request.url.startsWith('http')) return;\n    e.respondWith(caches.match(e.request).then((r) => r || fetch(e.request).catch(() => caches.match('./index.html'))));\n  });\n`;
