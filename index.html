@@ -18,7 +18,6 @@
     
     <!-- External Libraries -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Perbaikan Bug: Mengubah class="stylesheet" menjadi rel="stylesheet" agar ikon FontAwesome termuat sempurna -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html5-qrcode/2.3.8/html5-qrcode.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.2.0/crypto-js.min.js"></script>
@@ -90,8 +89,16 @@
             <i class="fa-solid fa-server text-sm sm:text-lg"></i>
           </div>
           <div>
-            <h1 class="text-sm sm:text-lg font-bold tracking-tight text-slate-900 dark:text-white flex items-center gap-1 font-space">
-              DAPO-HUB <span class="bg-blue-100 text-blue-800 dark:bg-blue-950 dark:text-blue-200 text-[10px] px-1.5 py-0.5 rounded font-mono font-bold">Pro v5.0</span>
+            <h1 class="text-sm sm:text-lg font-bold tracking-tight text-slate-900 dark:text-white flex items-center gap-1.5 font-space">
+              DAPO-HUB 
+              <!-- Perbaikan Desain Tampilan Versi Pro v5.0 menjadi super premium dan dinamis dengan animasi soft pulse dot -->
+              <span class="inline-flex items-center gap-1.5 bg-gradient-to-r from-blue-500/10 to-indigo-500/10 dark:from-blue-500/20 dark:to-indigo-500/20 text-blue-600 dark:text-blue-400 text-[9px] sm:text-[10px] px-2.5 py-0.5 rounded-full font-mono font-black border border-blue-500/20 dark:border-blue-400/30 tracking-wider uppercase">
+                <span class="relative flex h-1.5 w-1.5">
+                  <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75"></span>
+                  <span class="relative inline-flex rounded-full h-1.5 w-1.5 bg-blue-500 dark:bg-blue-400"></span>
+                </span>
+                Pro v5.0
+              </span>
             </h1>
             <p id="view-school-header" class="text-[9px] sm:text-xs text-slate-500 dark:text-slate-400 font-medium">Memuat nama sekolah...</p>
           </div>
@@ -353,7 +360,7 @@
                 <h3 class="font-space font-extrabold text-base text-slate-900 dark:text-white flex items-center gap-2">
                   <i class="fa-solid fa-screwdriver-wrench text-blue-500"></i> Ruang Kerja Peralatan IT & Utilitas
                 </h3>
-                <span class="text-[9px] font-black tracking-widest bg-blue-50 dark:bg-blue-950/40 text-blue-600 dark:text-blue-400 px-2 py-0.5 rounded uppercase">offline utilities</span>
+                <span class="text-[9px] font-black tracking-widest bg-blue-50 dark:bg-blue-950/40 text-blue-600 dark:text-blue-400 px-2 py-0.5 rounded uppercase font-mono">offline utilities</span>
               </header>
 
               <!-- Navigasi Tab Mini Peralatan IT -->
@@ -552,7 +559,7 @@
           </article>
 
           <!-- WORKSPACE: RUANG KERJA PDF -->
-          <article id="panel-pdf-tools-wrapper" class="hidden space-y-6 animate-fade-in">
+          <article id="panel-pdf-tools-wrapper" class="hidden space-y-6">
             <div class="bg-white dark:bg-slate-800 p-5 sm:p-6 rounded-3xl border border-slate-200/60 dark:border-slate-700/60 shadow-md space-y-6">
               <header class="flex justify-between items-center pb-3 border-b border-slate-100 dark:border-slate-700">
                 <h3 class="font-space font-extrabold text-base text-slate-900 dark:text-white flex items-center gap-2">
@@ -659,7 +666,7 @@
           </article>
 
           <!-- WORKSPACE: MONITOR / LATENSI PING SERVER -->
-          <article id="panel-ping-tools-wrapper" class="hidden space-y-6 animate-fade-in">
+          <article id="panel-ping-tools-wrapper" class="hidden space-y-6">
             <div class="bg-white dark:bg-slate-800 p-5 sm:p-6 rounded-3xl border border-slate-200/60 dark:border-slate-700/60 shadow-md space-y-6">
               <header class="flex flex-col md:flex-row justify-between items-start md:items-center pb-3 border-b border-slate-100 dark:border-slate-700 gap-3">
                 <div>
@@ -683,13 +690,13 @@
           </article>
 
           <!-- WORKSPACE: UJI KECEPATAN INTERNET SPEEDTEST -->
-          <article id="panel-speedtest-wrapper" class="hidden space-y-6 animate-fade-in">
+          <article id="panel-speedtest-wrapper" class="hidden space-y-6">
             <div class="bg-white dark:bg-slate-800 p-5 sm:p-6 rounded-3xl border border-slate-200/60 dark:border-slate-700/60 shadow-md space-y-6">
               <header class="flex justify-between items-center pb-3 border-b border-slate-100 dark:border-slate-700">
                 <h3 class="font-space font-extrabold text-base text-slate-900 dark:text-white flex items-center gap-2">
                   <i class="fa-solid fa-gauge-high text-amber-500"></i> Speedtest Jaringan Lokal Lab Komputer
                 </h3>
-                <span class="text-[9px] font-black tracking-widest bg-amber-50 dark:bg-amber-950/40 text-amber-600 dark:text-amber-400 px-2 py-0.5 rounded uppercase">cors guaranteed</span>
+                <span class="text-[9px] font-black tracking-widest bg-amber-50 dark:bg-amber-950/40 text-amber-600 dark:text-amber-400 px-2 py-0.5 rounded uppercase font-mono">cors guaranteed</span>
               </header>
 
               <div class="grid grid-cols-1 md:grid-cols-12 gap-6 items-center">
@@ -713,17 +720,17 @@
                     <div class="p-3 bg-slate-50 dark:bg-slate-900/40 border border-slate-100 dark:border-slate-800 rounded-xl">
                       <span class="block text-[8px] font-black text-slate-400">PING / LATENCY</span>
                       <span id="speedtest-ping" class="text-base font-black text-slate-800 dark:text-white">-</span>
-                      <span id="speedtest-jitter" class="block text-[7px] font-bold text-slate-400">Jitter: -</span>
+                      <span id="speedtest-jitter" class="block text-[7px] font-bold text-slate-400 font-mono">Jitter: -</span>
                     </div>
                     <div class="p-3 bg-slate-50 dark:bg-slate-900/40 border border-slate-100 dark:border-slate-800 rounded-xl">
                       <span class="block text-[8px] font-black text-slate-400 text-blue-600 dark:text-blue-400">UNDUH (DOWNLOAD)</span>
                       <span id="speedtest-download" class="text-base font-black text-blue-600 dark:text-blue-400">-</span>
-                      <span class="text-[7px] text-slate-400 block font-bold">Mbps</span>
+                      <span class="text-[7px] text-slate-400 block font-bold font-mono">Mbps</span>
                     </div>
                     <div class="p-3 bg-slate-50 dark:bg-slate-900/40 border border-slate-100 dark:border-slate-800 rounded-xl">
                       <span class="block text-[8px] font-black text-slate-400 text-indigo-500">UNGGAH (UPLOAD)</span>
                       <span id="speedtest-upload" class="text-base font-black text-indigo-500">-</span>
-                      <span class="text-[7px] text-slate-400 block font-bold">Mbps</span>
+                      <span class="text-[7px] text-slate-400 block font-bold font-mono">Mbps</span>
                     </div>
                   </div>
 
